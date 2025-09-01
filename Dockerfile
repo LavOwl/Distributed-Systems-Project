@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/root/.local/bin:$PATH"
+ENV FLASK_ENV=production
 
 COPY pyproject.toml uv.lock ./
 

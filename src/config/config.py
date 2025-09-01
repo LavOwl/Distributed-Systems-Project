@@ -1,6 +1,6 @@
 import os
 
-if os.environ.get("FLASK_ENV") != "production":
+if os.environ.get("FLASK_ENV") != "production" and os.environ.get("FLASK_ENV") != None:
     from dotenv import load_dotenv
     load_dotenv()
 
