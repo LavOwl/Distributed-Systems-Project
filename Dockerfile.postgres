@@ -1,0 +1,10 @@
+FROM postgres:16
+
+# Default values (will be overridden by environment variables in render.yaml)
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=app_db
+
+EXPOSE 5432
+
+VOLUME ["/var/lib/postgresql/data"]

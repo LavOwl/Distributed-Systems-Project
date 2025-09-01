@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: flask-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://prod_user:prod_pass@flask-db:5432/postgres_db
+      - key: SECRET_KEY
+        sync: false # Set value in dashboard
+      - key: FLASK_ENV
+        value: production
+
+  - type: pserv
+    name: flask-db
+    env: docker
+    dockerfilePath: ./Dockerfile.postgres
+    plan: free
+    envVars:
+      - key: POSTGRES_USER
+        value: prod_user
+      - key: POSTGRES_PASSWORD
+        value: prod_pass
+      - key: POSTGRES_DB
+        value: postgres_db
