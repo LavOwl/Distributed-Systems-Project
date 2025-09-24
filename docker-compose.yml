@@ -9,27 +9,27 @@ services:
       - .:/app
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=${DATABASE_URL:-postgresql://dev_user:dev_pass@localhost:5432/dev_db}
+      # Nota: usa "db" como host cuando corres con Compose
+      - DATABASE_URL=${DATABASE_URL:-postgresql://dev_user:dev_pass@db:5432/dev_db}
     depends_on:
-      - db:
+      db:
         condition: service_healthy
-    
 
   db:
     build:
       context: .
       dockerfile: Dockerfile.postgres
     args:
-        - POSTGRES_USER: ${POSTGRES_USER:-dev_user}
-        - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_pass}
-        - POSTGRES_DB: ${POSTGRES_DB:-dev_db}
+      POSTGRES_USER: ${POSTGRES_USER:-dev_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-dev_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      - test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dev_user} -d ${POSTGRES_DB:-dev_db}"]
-      - interval: 10s
-      - timeout: 5s
-      - retries: 5
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dev_user} -d ${POSTGRES_DB:-dev_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
