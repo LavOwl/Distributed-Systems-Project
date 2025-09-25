@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
 from src.servicios.bonita_service import BonitaService
 from flask import render_template 
-
+import os
 
 bonita_bp = Blueprint("bonita", __name__)
-
+BONITA_BASE_URL = os.environ.get("BONITA_BASE_URL")
 
 @bonita_bp.get("/")
 def index():
@@ -13,7 +13,7 @@ def index():
 @bonita_bp.get("/login")
 def login():
     bonita = BonitaService()
-    session = bonita.bonita_login("http://localhost:8080/bonita/","walter.bates", "bpm")
+    session = bonita.bonita_login()
     if session:
         return jsonify({"message": "Login successful"}), 200
     else:
@@ -24,6 +24,7 @@ def login():
 @bonita_bp.post("/iniciar_proceso/<process_id>")
 def iniciar_proceso(process_id):
     bonita = BonitaService()
+    bonita.bonita_login()
     result = bonita.iniciar_proceso(process_id)
     return jsonify(result)
 
