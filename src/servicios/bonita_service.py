@@ -1,5 +1,5 @@
 import requests
-
+from requests.exceptions import HTTPError
 BONITA_URL = "http://localhost:8080/bonita/"
 password = 'bpm'
 user = 'walter.bates'
@@ -10,7 +10,7 @@ class BonitaService:
        
     
 
-    def bonita_login(base_url: str, username: str, password: str):
+    def bonita_login(self, base_url: str, username: str, password: str):
         """
         Se conecta al loginservice de Bonita y devuelve una sesión de requests 
         con las cookies de autenticación.
@@ -26,9 +26,10 @@ class BonitaService:
             response = session.post(
                 LOGIN_URL,
                 data=login_data,
-                headers={'Content-Type': 'application/x-www-form-urlencoded'}
+             #   headers={'Content-Type': 'application/x-www-form-urlencoded'}
             )
-            response.raise_for_status()
+            print(f"Respuesta del login: {response.status_code} - {response.text}")
+            response.raise_for_status() # Lanza un error para códigos 4xx/5xx
             if response.status_code == 200:
                 token = session.cookies.get('X-Bonita-API-Token')
                 print(f"X-Bonita-API-Token obtenido: {token}")
