@@ -4,7 +4,7 @@ from src.routes.bonita_api import bonita_bp
 from src.servicios.bonita_service import BonitaService
 
 app = create_app()
-app.register_blueprint(bonita_bp, url_prefix="/bonita")
+app.register_blueprint(bonita_bp, url_prefix="/APIbonita")
 
 if __name__ == '__main__':
     app.run()
