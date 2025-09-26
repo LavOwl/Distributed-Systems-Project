@@ -25,8 +25,10 @@ def login():
 def iniciar_proceso():
     bonita = BonitaService()
     bonita.bonita_login()
-
-    result = bonita.iniciar_proceso()
+    process_id = bonita.get_process_id()
+    if not process_id:
+        return jsonify({"message": "No se pudo obtener el ID del proceso"}), 500
+    result = bonita.iniciar_proceso(process_id=process_id)
     print("Resultado de iniciar proceso:", result)
     return jsonify(result)
 
@@ -42,7 +44,7 @@ def obtener_Id():
     bonita = BonitaService()
     bonita.bonita_login()
     result = bonita.get_process_id()
-    print("Resultado de obtener ID proceso:", result.jsonify().id)
+    
     if result:
         return jsonify({"message": "Login successful"}), 200
     else:

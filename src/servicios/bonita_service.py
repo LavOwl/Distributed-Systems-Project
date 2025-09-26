@@ -56,7 +56,7 @@ class BonitaService:
 
     
     def get_process_id(self):
-        url = f"{self.base_url}/API/bpm/process"
+        url = f"{BONITA_URL}/API/bpm/process"
         name_process = "proceso_de_ejecucion"
         params = {
             'name': name_process
@@ -67,7 +67,7 @@ class BonitaService:
         response = self.session.get(url, params=params, headers=headers)
         response.raise_for_status()
         print ("Respuesta de get_process_id:", response.status_code, response.text)
-        return response['id']
+        return response.json()[0]['id']
       
     def iniciar_proceso(self, process_id):
         print("Iniciando proceso con ID:", process_id)
@@ -78,10 +78,6 @@ class BonitaService:
         }
         resp = self.session.post(url,headers= headers)
         print (f"Respuesta de iniciar proceso: {resp.status_code} - {resp.text}")
-        if resp.status_code in (401, 403):
-            # reintento
-            if self.bonita_login():
-                resp = self.session.post(url, headers= headers)
         resp.raise_for_status()
         return resp.json()
 
