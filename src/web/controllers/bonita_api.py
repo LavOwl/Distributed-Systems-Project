@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from src.servicios.bonita_service import BonitaService
+from src.web.services.bonita_service import BonitaService
 from flask import render_template 
 import os
 
