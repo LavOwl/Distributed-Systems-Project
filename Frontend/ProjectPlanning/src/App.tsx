@@ -76,7 +76,7 @@ function App() {
       <Header />
 
       <main className="flex justify-center w-full flex-1">
-        <form onSubmit={initiateFlaskBonita} className="flex flex-col w-4/5 py-4 px-4 bg-black/20 rounded-2xl gap-6 h-fit">
+        <form onSubmit={initiateFlaskBonita} className="flex flex-col w-4/5 py-4 px-4 rounded-2xl gap-6 h-fit">
           <div className='flex gap-6 text-nowrap'>
             <div className='flex flex-col'>
               <h1 className='text-2xl'>Creación de Proyecto</h1>
@@ -94,7 +94,7 @@ function App() {
             </div>
           </div>
           <div className='w-full flex justify-end'>
-            <button className='border border-black h-8 rounded-md w-fit px-4 hover:bg-black/20 cursor-pointer'>Enviar</button>
+            <button className='rounded-md w-fit px-4 py-2 bg-white cursor-pointer hover:bg-gray-100'>Enviar</button>
           </div>
         </form>
       </main>
