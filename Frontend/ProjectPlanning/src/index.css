@@ -9,5 +9,28 @@ html{
     padding: 0.3rem;
     cursor: pointer;
     border-radius: 0.2rem;
-    /*filter: invert(1)*/
+}
+
+input[type="date"]:focus::-webkit-datetime-edit-year-field,
+input[type="date"]:focus::-webkit-datetime-edit-month-field,
+input[type="date"]:focus::-webkit-datetime-edit-day-field {
+    background: rgba(0,0,0,0);
+    border-radius: 0.2rem;
+    padding: 0.1rem;
+    color: #fb8500;
+}
+
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field {
+    background: rgba(0,0,0,0);
+    border-radius: 0.2rem;
+    padding: 0.1rem;
+    color: black;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+    transform: scale(0);
+    font-size: 0rem;
+    color: transparent;
 }

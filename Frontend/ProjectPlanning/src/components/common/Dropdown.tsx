@@ -32,14 +32,14 @@ function DropDownInput({ texts, label, mod_id }: DropDownInputProps) {
   };
 
   return (
-    <div className="relative w-full text-center" ref={dropdownRef}>
-      <input type="hidden" name={label+mod_id} value={selected || ""} required />
+    <div className="relative w-full" ref={dropdownRef}>
+      <input type="hidden" name={label+mod_id} value={selected || texts[0]} required />
 
       <div
-        className="h-16 flex items-center justify-center w-full cursor-pointer hover:bg-black/20 select-none"
+        className={`h-10 flex items-center box-border px-2 text-sm justify-between w-full cursor-pointer bg-black/10 border-2 rounded-sm mt-4 select-none ${isOpen ? 'border-[#fb8500]' : 'border-transparent'}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {selected || "Categoría"}
+        {selected || texts[0]}
         <span
           className={`border-r-1 border-t-1 p-1 rotate-45 ml-2 transition-transform ${
             isOpen ? "rotate-135" : ""
@@ -48,11 +48,11 @@ function DropDownInput({ texts, label, mod_id }: DropDownInputProps) {
       </div>
 
       {isOpen && (
-        <ul className="absolute left-0 bg-black/10 backdrop-blur-xl top-16 w-full m-auto flex flex-col z-50">
+        <ul className="absolute left-0 bg-black/10 backdrop-blur-xl top-14 w-full m-auto flex flex-col z-50">
           {texts.map((value, index) => (
             <li
               key={index}
-              className="flex items-center hover:bg-black/20 justify-center h-16 w-full cursor-pointer"
+              className="flex items-center hover:bg-black/20 text-sm box-border px-2 h-10 w-full cursor-pointer"
               onClick={() => handleSelect(value)}
             >
               {value}
