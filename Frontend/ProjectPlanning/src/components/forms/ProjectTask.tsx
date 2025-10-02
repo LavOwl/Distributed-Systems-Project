@@ -6,7 +6,7 @@ import DropDownInput from "../common/Dropdown";
 export function ProjectTask({ children, taskNumber } : { children?:ReactNode, taskNumber:number }){
     return (
         <>
-            <div className="flex h-60 flex-col aspect-[3/4] max-w-45 border rounded-xl relative box-border px-4">
+            <div className="flex h-70 flex-col w-50 border rounded-md relative box-border px-4 py-8">
                 <TextInput label='Nombre de Tarea' id_mod={taskNumber}/>
                 <DateInput label='Fecha de Inicio' id_mod={taskNumber}/>
                 <DateInput label='Fecha de Fin' id_mod={taskNumber}/>

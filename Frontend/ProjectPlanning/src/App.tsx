@@ -77,12 +77,13 @@ function App() {
 
       <main className="flex justify-center w-full flex-1">
         <form onSubmit={initiateFlaskBonita} className="flex flex-col w-4/5 py-4 px-4 rounded-2xl gap-6 h-fit">
-          <div className='flex gap-6 text-nowrap'>
-            <div className='flex flex-col'>
-              <h1 className='text-2xl'>Creación de Proyecto</h1>
+          <h1 className='text-3xl'>Presentar Proyecto</h1>
+          <hr/>
+            <div className='flex flex-col text-nowrap'>
               <label className='text-xl' htmlFor='Nombre Proyecto'>Título</label>
-              <input name='projectName' className='h-8 rounded-xl border' id='Nombre Proyecto' required type='text'/>
+              <input name='projectName' className='bg-black/10 rounded-sm w-80 outline-none text-sm border-transparent border-2 px-2 py-[0.5rem] box-border focus:border-[#fb8500]' id='Nombre Proyecto' required type='text'/>
             </div>
+            <h2 className='text-xl '>Tareas Adjuntas</h2>
             <div className='flex gap-4 flex-wrap'>
               <ProjectTask taskNumber={0} />
               {tasks.map((task) => (
@@ -92,9 +93,8 @@ function App() {
               ))}
               <AppendButton onClick={handleAppend} />
             </div>
-          </div>
           <div className='w-full flex justify-end'>
-            <button className='rounded-md w-fit px-4 py-2 bg-white cursor-pointer hover:bg-gray-100'>Enviar</button>
+            <button className='transition-all duration-500 cursor-pointer rounded-md w-fit px-6 py-2 border-2 border-black/10 text-black/50 hover:border-[#fb8500] hover:text-[#fb8500]'>Enviar</button>
           </div>
         </form>
       </main>
