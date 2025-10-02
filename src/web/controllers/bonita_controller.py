@@ -32,8 +32,6 @@ def index():
     """
     return render_template("index.html")
 
-
-@bonita_bp.get("/v1/login")
 def login():
     """
     Realiza el login con Bonita.
@@ -46,14 +44,37 @@ def login():
         return jsonify({"message": "Login failed"}), 401
 
     
-@bonita_bp.post("/v1/iniciar_proceso/<process_name>")
 def iniciar_proceso(process_name: str):
     """
     Obtiene el ID del proceso enviado por parámetro y seguidamente lo inicia,
     devolviendo el case_id.
     """
-    payload = request.get_json(silent=True) or {}
+
+    bonita = BonitaService()
+    bonita.bonita_login()
+    process_id = bonita.obtener_id_proceso(process_name)
+    if not process_id:
+        raise Exception()
+    case_id = bonita.iniciar_proceso(process_id=process_id)
+    return jsonify(case_id)
+
+def completar_tarea(case_id):
+    """
+    Completa la primer tarea pendiente del case_id recibido por parámetro.
+    """
+    bonita = BonitaService()
+    bonita.bonita_login()
+    task_id = bonita.obtener_tarea_pendiente(case_id)
+    if not task_id:
+        raise Exception()
+    result = bonita.completar_tarea(task_id)
+    return result
+
+@bonita_bp.post("/v1/iniciar_proyecto")
+def iniciar_proyecto():
     
+    payload = request.get_json(silent=True) or {}
+    # Do something with the tasks, and/or the Project, classes are down for changes, and they may be all added to the DB <3
     tasks = [
         Task(
             name=t.get("name", ""),
@@ -64,16 +85,9 @@ def iniciar_proceso(process_name: str):
         for t in payload.get("tasks", [])
     ]
     project = Project(title=payload.get("title", ""), tasks=tasks)
-    print(project)
-    # Do something with the tasks, and/or the Project, classes are down for changes, and they may be all added to the DB <3
 
-    bonita = BonitaService()
-    bonita.bonita_login()
-    process_id = bonita.obtener_id_proceso(process_name)
-    if not process_id:
-        return jsonify({"message": "No se pudo obtener el ID del proceso"}), 500
-    case_id = bonita.iniciar_proceso(process_id=process_id)
-    return jsonify(case_id)
+    process_id = iniciar_proceso('proceso_de_ejecucion')
+    result = completar_tarea(process_id)
 
 
 @bonita_bp.get("/v1/obtener_id_proceso/<process_name>")
@@ -88,20 +102,6 @@ def obtener_id_proceso(process_name):
         return jsonify({"process_id": process_id}), 200
     else:
         return jsonify({"message": "Proceso no encontrado."}), 401
-
-
-@bonita_bp.post("/v1/completar_tarea/<case_id>")
-def completar_tarea(case_id):
-    """
-    Completa la primer tarea pendiente del case_id recibido por parámetro.
-    """
-    bonita = BonitaService()
-    bonita.bonita_login()
-    task_id = bonita.obtener_tarea_pendiente(case_id)
-    if not task_id:
-        return jsonify({"message": "No se puedo encontrar la tarea."}), 500
-    result = bonita.completar_tarea(task_id)
-    return jsonify(result)
 
 
 @bonita_bp.get("/v1/obtener_tarea_pendiente/<case_id>")
