@@ -2,6 +2,23 @@ from flask import Blueprint, jsonify
 from src.web.services.bonita_service import BonitaService
 from flask import render_template 
 import os
+from dataclasses import dataclass
+from typing import List
+from flask import request, jsonify
+
+# Step 1: define classes
+@dataclass
+class Task:
+    name: str
+    start_date: str
+    end_date: str
+    category: str
+
+@dataclass
+class Project:
+    title: str
+    tasks: List[Task]
+
 
 
 bonita_bp = Blueprint("APIbonita", __name__)
@@ -30,11 +47,26 @@ def login():
 
     
 @bonita_bp.post("/v1/iniciar_proceso/<process_name>")
-def iniciar_proceso(process_name):
+def iniciar_proceso(process_name: str):
     """
     Obtiene el ID del proceso enviado por parámetro y seguidamente lo inicia,
     devolviendo el case_id.
     """
+    payload = request.get_json(silent=True) or {}
+    
+    tasks = [
+        Task(
+            name=t.get("name", ""),
+            start_date=t.get("startDate", ""),
+            end_date=t.get("endDate", ""),
+            category=t.get("category", "")
+        )
+        for t in payload.get("tasks", [])
+    ]
+    project = Project(title=payload.get("title", ""), tasks=tasks)
+    print(project)
+    # Do something with the tasks, and/or the Project, classes are down for changes, and they may be all added to the DB <3
+
     bonita = BonitaService()
     bonita.bonita_login()
     process_id = bonita.obtener_id_proceso(process_name)
