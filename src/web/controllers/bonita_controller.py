@@ -32,42 +32,7 @@ def index():
     """
     return render_template("index.html")
 
-    # def login():
-    #     """
-    #     Realiza el login con Bonita.
-    #     """
-    #     bonita = BonitaService()
-    #     session = bonita.bonita_login()
-    #     if session:
-    #         return jsonify({"message": "Login successful"}), 200
-    #     else:
-    #         return jsonify({"message": "Login failed"}), 401
 
-def iniciar_proceso(process_name: str):
-    """
-    Obtiene el ID del proceso enviado por parámetro y seguidamente lo inicia,
-    devolviendo el case_id.
-    """
-
-    bonita = BonitaService()
-    bonita.bonita_login()
-    process_id = bonita.obtener_id_proceso(process_name)
-    if not process_id:
-        raise Exception()
-    case_id = bonita.iniciar_proceso(process_id=process_id)
-    return jsonify(case_id)
-
-def completar_tarea(case_id):
-    """
-    Completa la primer tarea pendiente del case_id recibido por parámetro.
-    """
-    bonita = BonitaService()
-    bonita.bonita_login()
-    task_id = bonita.obtener_tarea_pendiente(case_id)
-    if not task_id:
-        raise Exception()
-    result = bonita.completar_tarea(task_id)
-    return result
 
 @bonita_bp.post("/v1/iniciar_proyecto")
 def iniciar_proyecto():
@@ -89,29 +54,31 @@ def iniciar_proyecto():
     result = completar_tarea(process_id)
     return result
 
-@bonita_bp.get("/v1/obtener_id_proceso/<process_name>")
-def obtener_id_proceso(process_name):
+        
+    
+def iniciar_proceso(process_name: str):
     """
-    Devuelve el ID del proceso con nombre recibido por parámetro pero no lo inicia.
+    Obtiene el ID del proceso enviado por parámetro y seguidamente lo inicia,
+    devolviendo el case_id.
     """
+
     bonita = BonitaService()
     bonita.bonita_login()
     process_id = bonita.obtener_id_proceso(process_name)
-    if process_id:
-        return jsonify({"process_id": process_id}), 200
-    else:
-        return jsonify({"message": "Proceso no encontrado."}), 401
+    if not process_id:
+        raise Exception()
+    case_id = bonita.iniciar_proceso(process_id=process_id)
+    return jsonify(case_id)
 
 
-@bonita_bp.get("/v1/obtener_tarea_pendiente/<case_id>")
-def obtener_tarea_pendiente(case_id):
+def completar_tarea(case_id):
     """
-    Obtiene la primer tarea pendiente dado un case_id recibido por parámetro.
+    Completa la primer tarea pendiente del case_id recibido por parámetro.
     """
     bonita = BonitaService()
     bonita.bonita_login()
     task_id = bonita.obtener_tarea_pendiente(case_id)
-    if task_id:
-        return jsonify({"task_id": task_id}), 200
-    else:
-        return jsonify({"message": "Tarea no encontrada."}), 401
+    if not task_id:
+        raise Exception()
+    result = bonita.completar_tarea(task_id)
+    return result
