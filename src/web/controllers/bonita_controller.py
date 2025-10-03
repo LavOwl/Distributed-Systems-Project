@@ -32,18 +32,17 @@ def index():
     """
     return render_template("index.html")
 
-def login():
-    """
-    Realiza el login con Bonita.
-    """
-    bonita = BonitaService()
-    session = bonita.bonita_login()
-    if session:
-        return jsonify({"message": "Login successful"}), 200
-    else:
-        return jsonify({"message": "Login failed"}), 401
+    # def login():
+    #     """
+    #     Realiza el login con Bonita.
+    #     """
+    #     bonita = BonitaService()
+    #     session = bonita.bonita_login()
+    #     if session:
+    #         return jsonify({"message": "Login successful"}), 200
+    #     else:
+    #         return jsonify({"message": "Login failed"}), 401
 
-    
 def iniciar_proceso(process_name: str):
     """
     Obtiene el ID del proceso enviado por parámetro y seguidamente lo inicia,
@@ -88,7 +87,7 @@ def iniciar_proyecto():
 
     process_id = iniciar_proceso('proceso_de_ejecucion')
     result = completar_tarea(process_id)
-
+    return result
 
 @bonita_bp.get("/v1/obtener_id_proceso/<process_name>")
 def obtener_id_proceso(process_name):
