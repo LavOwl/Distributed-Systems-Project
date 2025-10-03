@@ -76,7 +76,7 @@ function App() {
       <Header />
 
       <main className="flex justify-center w-full flex-1">
-        <form onSubmit={initiateFlaskBonita} className="flex flex-col w-4/5 py-4 px-4 rounded-2xl gap-6 h-fit">
+        <form onSubmit={initiateFlaskBonita} className="flex flex-col w-4/5 py-4 px-4 rounded-2xl gap-2 h-fit">
           <h1 className='text-3xl'>Presentar Proyecto</h1>
           <hr/>
             <div className='flex flex-col text-nowrap'>
