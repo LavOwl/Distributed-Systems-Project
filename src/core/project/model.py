@@ -1,7 +1,6 @@
 from src.core.database import db
 from sqlalchemy import Enum
 import enum
-from src.core.stage.model import Stage
 
 class ProjectStatus(enum.Enum):
     """

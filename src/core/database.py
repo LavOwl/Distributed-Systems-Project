@@ -31,3 +31,13 @@ def reset():
     db.create_all()
     db.session.commit()
     print("Hecho.")
+
+
+def create_tables(app):
+    """
+    Crea todas las tablas definidas en los modelos.
+    """
+    with app.app_context():
+        print("Creando tablas en la base de datos...")
+        db.create_all()
+        print("Tablas creadas ✅.")

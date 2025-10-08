@@ -1,7 +1,6 @@
 from src.core.database import db
 from sqlalchemy import Enum
 import enum
-from src.core.project.model import Project
 
 class CoverageRequest(enum.Enum):
     """
