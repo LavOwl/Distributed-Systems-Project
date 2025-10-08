@@ -1,22 +1,22 @@
 from flask import Flask
-from .config.config import get_config
-from flask_sqlalchemy import SQLAlchemy
-from src.web.controllers.bonita_controller import bonita_bp
 from flask_cors import CORS
+from src.config.config import get_config
+from src.core.database import db
+from src.web.blueprints import register_blueprints
 
-db = SQLAlchemy()
-
+# Creación de la app principal.
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
 
+    # Seteo de configuración.
     app.config.from_object(get_config())
     CORS(app)
     db.init_app(app)
+    register_blueprints(app)
 
-
-    app.register_blueprint(bonita_bp, url_prefix="/APIbonita")
+    # Renderización del home.
     @app.route("/")
-    def home(): #type: ignore
-        return "Flask + Postgres is working!"
+    def home():
+        return "Backend ejecutando correctamente ✅."
     
     return app
