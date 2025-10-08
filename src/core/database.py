@@ -21,23 +21,14 @@ def config(app):
     return app
 
 
-def reset():
+def reset(app):
     """
     Resetea la base de datos.
     """
-    print("Eliminando base de datos...")
-    db.drop_all()
-    print("Creando base de datos nuevamente...")
-    db.create_all()
-    db.session.commit()
-    print("Hecho.")
-
-
-def create_tables(app):
-    """
-    Crea todas las tablas definidas en los modelos.
-    """
     with app.app_context():
-        print("Creando tablas en la base de datos...")
+        print("Eliminando base de datos...")
+        db.drop_all()
+        print("Creando base de datos nuevamente...")
         db.create_all()
+        db.session.commit()
         print("Tablas creadas ✅.")

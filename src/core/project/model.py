@@ -6,9 +6,9 @@ class ProjectStatus(enum.Enum):
     """
     Enum para los estados de un proyecto.
     """
-    PENDING = "Pendiente"
-    IN_PROGRESS = "En progreso"
-    COMPLETED = "Completado"
+    PENDIENTE = "Pendiente"
+    EN_PROGRESO = "En progreso"
+    COMPLETADO = "Completado"
 
 
 class Project(db.Model):
@@ -19,7 +19,7 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
-    status = db.Column(Enum(ProjectStatus), default=ProjectStatus.PENDING, nullable=False)
+    status = db.Column(db.Enum(ProjectStatus), default=ProjectStatus.PENDIENTE, nullable=False)
 
     # Relación entre project y stage.
     stages = db.relationship("Stage", back_populates="project")

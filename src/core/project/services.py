@@ -12,7 +12,7 @@ def crear_project(name, description, stages):
         project = Project(
             name=name,
             description=description,
-            status=ProjectStatus.PENDING
+            status=ProjectStatus.PENDIENTE
         )
         
         # Almacenamiento del project en la base de datos.
