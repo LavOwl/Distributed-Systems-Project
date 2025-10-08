@@ -2,11 +2,9 @@ import requests
 from requests.exceptions import HTTPError, RequestException
 import os
 
-
 BONITA_URL = os.getenv("BONITA_BASE_URL", "http://localhost:8080/bonita").rstrip("/")
 BONITA_USER = os.getenv("BONITA_USER", "walter.bates")
 BONITA_PASS = os.getenv("BONITA_PASSWORD", "bpm")
-
 
 class BonitaService:
     def __init__(self):
