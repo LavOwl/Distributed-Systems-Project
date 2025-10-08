@@ -105,9 +105,8 @@ class BonitaService:
 
         # Levanta una excepción para los errores 4xx y 5xx.
         response.raise_for_status()
-
         # Devuelve un JSON con la respuesta.
-        return response.json()
+        return response.json()['caseId']
 
 
     def obtener_tarea_pendiente(self, case_id):

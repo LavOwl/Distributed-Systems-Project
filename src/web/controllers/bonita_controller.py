@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from src.web.services.bonita_service import BonitaService
-from src.core.project.services import crear_project
+from src.core.project.services import create_project, set_case_id
 import os
 
 bonita_bp = Blueprint("APIbonita", __name__)
@@ -25,21 +25,23 @@ def iniciar_proyecto():
             "name": t.get("name", ""),
             "start_date": t.get("startDate", ""),
             "end_date": t.get("endDate"),
-            "coverage_request": t.get("converageRequest", "")
+            "coverage_request": t.get("converageRequest", ""),
+            "requires_contributor": t.get("requiresContributor", "")
         }
         for t in payload.get("tasks", [])
     ]
 
-    # Crea el proyecto + stages en la base de datos.
-    crear_project(name, description, stages)
+    # Crea el proyecto y sus stages en la base de datos.
+    project = create_project(name, description, stages)
 
     # Realiza el login con Bonita.
     bonita = BonitaService()
     if not bonita.bonita_login():
         return jsonify({"error": "No se pudo autenticar en Bonita"}), 500
 
-    # Inicia el proceso y obtiene el case_id.
+    # Inicia el proceso, obtiene el case_id y lo guarda en la tabla de proyecto.
     case_id = bonita.iniciar_proceso("proceso_de_ejecucion")
+    set_case_id(project, case_id)
 
     # Completa la primera tarea pendiente.
     result = bonita.completar_tarea(case_id)

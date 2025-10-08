@@ -21,6 +21,7 @@ class Stage(db.Model):
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=True)
     coverage_request = db.Column(Enum(CoverageRequest), nullable=False)
+    requires_contributor = db.Column(db.Boolean, nullable=False, default=False)
 
     # Clave foránea para acceder al proyecto.
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)

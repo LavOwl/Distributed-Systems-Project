@@ -17,6 +17,7 @@ class Project(db.Model):
     """
     __tablename__ = "project"
     id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
     status = db.Column(db.Enum(ProjectStatus), default=ProjectStatus.PENDIENTE, nullable=False)
