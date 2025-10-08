@@ -1,5 +1,6 @@
 import requests
 from requests.exceptions import HTTPError, RequestException
+from flask import jsonify
 import os
 
 BONITA_URL = os.getenv("BONITA_BASE_URL", "http://localhost:8080/bonita").rstrip("/")
@@ -60,6 +61,7 @@ class BonitaService:
         """
         Obtiene el ID del proceso recibido por parámetro.
         """
+        
         # Prepara los datos para la petición.
         url = f"{self.base_url}/API/bpm/process"
         params = {
@@ -81,11 +83,16 @@ class BonitaService:
                 return process['id']
 
 
-    def iniciar_proceso(self, process_id):
+    def iniciar_proceso(self, process_name):
         """
-        Recibe un ID de proceso y lo inicia.
+        Recibe un nombre de proceso, busca su ID asociado, lo inicia y retorna un case_id.
         """
 
+        # Busca el ID asociado al proceso.
+        process_id = self.obtener_id_proceso(process_name)
+        if not process_id:
+            raise Exception(f"No se encontró el proceso '{process_name}'")
+        
         # Prepara los datos para hacer la petición.
         url = f"{self.base_url}/API/bpm/process/{process_id}/instantiation"
         headers = {
@@ -102,12 +109,6 @@ class BonitaService:
         # Devuelve un JSON con la respuesta.
         return response.json()
 
-
-    def completar_actividad(self, task_id):
-        url = f"{BONITA_URL}/API/bpm/userTask/{task_id}/execution"
-        response = self.session.post(url, json={})
-        return response.status_code == 204
-    
 
     def obtener_tarea_pendiente(self, case_id):
         """
@@ -136,11 +137,16 @@ class BonitaService:
         return response.json()[0]['id']
 
 
-    def completar_tarea(self, task_id):
+    def completar_tarea(self, case_id):
         """
-        Completa la tarea recibida por parámetro.
+        Completa la tarea pendiente del case_id recibido por parámetro.
         """
 
+        # Busca el task_id asociado a la primer tarea pendiente del case_id recibido.
+        task_id = self.obtener_tarea_pendiente(case_id)
+        if not task_id:
+            raise Exception("No hay tarea pendiente")
+        
         # Prepara los datos para la petición.
         url = f"{self.base_url}/API/bpm/userTask/{task_id}/execution"
         headers = {
