@@ -25,7 +25,7 @@ def iniciar_proyecto():
             "name": t.get("name", ""),
             "start_date": t.get("startDate", ""),
             "end_date": t.get("endDate"),
-            "coverage_request": t.get("converageRequest", ""),
+            "coverage_request": t.get("coverageRequest", ""),
             "requires_contributor": t.get("requiresContributor", "")
         }
         for t in payload.get("tasks", [])
