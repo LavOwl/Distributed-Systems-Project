@@ -26,6 +26,7 @@ class BonitaService:
         if not self.base_url or not self.username or not self.password:
             raise ValueError("BONITA_URL, BONITA_USER o BONITA_PASS no están configurados.")
         
+        print("URL", self.base_url)
         # Prepara los datos de la url y de los headers para hacer la petición.
         login_url = f"{self.base_url}/loginservice"
         login_data = {

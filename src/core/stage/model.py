@@ -6,9 +6,9 @@ class CoverageRequest(enum.Enum):
     """
     Enum para los pedidos de cobertura de un proyecto.
     """
-    DINERO = "Dinero"
-    MATERIALES = "Materiales"
-    MANO_DE_OBRA = "Mano de obra"
+    DINERO = "DINERO"
+    MATERIALES = "MATERIALES"
+    MANO_DE_OBRA = "MANO_DE_OBRA"
 
 
 class Stage(db.Model):

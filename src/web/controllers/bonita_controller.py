@@ -1,6 +1,8 @@
+from pydantic import ValidationError
 from flask import Blueprint, request, jsonify
 from src.web.services.bonita_service import BonitaService
 from src.core.project.services import create_project, set_case_id
+from src.core.validators.project import ProjectValidator
 import os
 
 bonita_bp = Blueprint("APIbonita", __name__)
@@ -16,23 +18,39 @@ def iniciar_proyecto():
     payload = request.get_json(silent=True) or {}
 
     # Extrae los datos del proyecto.
-    name = payload.get("title", "")
-    description = payload.get("description", "")
+    #name = payload.get("title", "")
+    #escription = payload.get("description", "")
 
     # Extrae y transforma las etapas.
-    stages = [
-        {
-            "name": t.get("name", ""),
-            "start_date": t.get("startDate", ""),
-            "end_date": t.get("endDate"),
-            "coverage_request": t.get("coverageRequest", ""),
-            "requires_contributor": t.get("requiresContributor", "")
-        }
-        for t in payload.get("tasks", [])
-    ]
+    # stages = [
+    #     {
+    #         "name": t.get("name", ""),
+    #         "start_date": t.get("startDate", ""),
+    #         "end_date": t.get("endDate"),
+    #         "coverage_request": t.get("coverageRequest", ""),
+    #         "requires_contributor": t.get("requiresContributor", "")
+    #     }
+    #     for t in payload.get("tasks", [])
+    # ]
+    try:
+        project_in = ProjectValidator.model_validate(payload)
+    except ValidationError as e:
+        print("QUE PASO? ", e.errors())
+        return jsonify({"errors": e.errors()}), 400
+
+
+    # Crea el proyecto y sus stages en la base de datos.
+    #project = create_project(name, description, stages)
+
+    name = project_in.title
+    description = project_in.description or ""
+
+    # Convertir etapas validadas a dicts (model_dump -> dict simple)
+    stages = [stage.model_dump() for stage in project_in.stages]
 
     # Crea el proyecto y sus stages en la base de datos.
     project = create_project(name, description, stages)
+
 
     # Realiza el login con Bonita.
     bonita = BonitaService()

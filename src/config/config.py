@@ -14,7 +14,7 @@ class DevConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
-        "postgresql://dev_user:dev_pass@localhost:5432/dev_db"
+         f"postgresql://{os.environ.get('DB_USER','postgres')}:{os.environ.get('DB_PASSWORD','postgres')}@{os.environ.get('DB_HOST','localhost')}:{os.environ.get('DB_PORT','5432')}/{os.environ.get('DB_NAME','db_local')}"
     )
 
 
