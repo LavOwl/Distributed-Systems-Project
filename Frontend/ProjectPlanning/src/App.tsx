@@ -4,6 +4,7 @@ import { Footer } from "./components/layout/Footer";
 import { ProjectTask } from "./components/forms/ProjectTask";
 import { RemoveButton } from "./components/common/RemoveButton";
 import { AppendButton } from "./components/common/AppendButton";
+import { TextArea } from "./components/common/TextArea";
 
 type ApiResponse = {
   id?: string;
@@ -81,7 +82,8 @@ function App() {
           <hr/>
             <div className='flex flex-col text-nowrap'>
               <label className='text-xl' htmlFor='Nombre Proyecto'>Título</label>
-              <input name='projectName' className='bg-black/10 rounded-sm w-80 outline-none text-sm border-transparent border-2 px-2 py-[0.5rem] box-border focus:border-[#fb8500]' id='Nombre Proyecto' required type='text'/>
+              <input name='projectName' className='bg-black/10 rounded-sm w-80 outline-none text-sm border-transparent border-2 px-2 py-[0.5rem] box-border focus:border-[#fb8500] mb-4' id='Nombre Proyecto' required type='text'/>
+              <TextArea label='Descripción' id_mod={1}/>
             </div>
             <h2 className='text-xl '>Tareas Adjuntas</h2>
             <div className='flex gap-4 flex-wrap'>

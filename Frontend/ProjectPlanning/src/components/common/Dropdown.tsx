@@ -36,7 +36,7 @@ function DropDownInput({ texts, label, mod_id }: DropDownInputProps) {
       <input type="hidden" name={label+mod_id} value={selected || texts[0]} required />
 
       <div
-        className={`h-10 flex items-center box-border px-2 text-sm justify-between w-full cursor-pointer bg-black/10 border-2 rounded-sm mt-4 select-none ${isOpen ? 'border-[#fb8500]' : 'border-transparent'}`}
+        className={`h-10 flex items-center box-border px-2 text-sm justify-between w-full cursor-pointer bg-black/10 border-2 rounded-sm select-none ${isOpen ? 'border-[#fb8500]' : 'border-transparent'}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         {selected || texts[0]}
