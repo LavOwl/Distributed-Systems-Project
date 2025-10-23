@@ -11,8 +11,8 @@ def create_app() -> Flask:
     # Seteo de configuración.
     app.config.from_object(get_config())
     CORS(app)
-    db.init_app(app)
-    reset(app)
+    #db.init_app(app)
+    #reset(app)
 
     # Registro de blueprints.
     register_blueprints(app)

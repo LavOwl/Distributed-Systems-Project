@@ -36,6 +36,7 @@ function App() {
         start_date: formData.get(`Fecha de Inicio${task.id}`) as string,
         end_date: formData.get(`Fecha de Fin${task.id}`) as string,
         coverage_request: formData.get(`Categoría${task.id}`) as string,
+        requires_contributor: !!formData.get(`Requiere contribución0`)
       }));
 
       projectTasks.push({
@@ -43,6 +44,7 @@ function App() {
         start_date: formData.get(`Fecha de Inicio0`) as string,
         end_date: formData.get(`Fecha de Fin0`) as string,
         coverage_request: formData.get(`Categoría0`) as string,
+        requires_contributor: !!formData.get(`Requiere contribución0`),
       })
 
       const payload = {
