@@ -12,7 +12,7 @@ class StageSchema(BaseModel):
     name: str = Field(..., max_length=100)
     start_date: datetime
     end_date: Optional[datetime] = None
-    coverage_request: CoverageRequest
+    coverage_request: Optional[CoverageRequest] = None
     requires_contributor: bool = False
 
     @validator('end_date')
@@ -20,6 +20,10 @@ class StageSchema(BaseModel):
         if v and 'start_date' in values and v < values['start_date']:
             raise ValueError('end_date must be after start_date')
         return v
+    
+    @validator('requires_contributor', always=True)
+    def set_requires_contributor(cls, v, values):
+        return values.get('coverage_request') is not None
 
     class Config:
         use_enum_values = True

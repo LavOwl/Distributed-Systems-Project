@@ -33,7 +33,7 @@ function DropDownInput({ texts, label, mod_id }: DropDownInputProps) {
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      <input type="hidden" name={label+mod_id} value={selected || texts[0]} required />
+      <input type="hidden" name={label+mod_id} value={(selected || texts[0]).replace(/ /g, '_').toUpperCase()} required />
 
       <div
         className={`h-10 flex items-center box-border px-2 text-sm justify-between w-full cursor-pointer bg-black/10 border-2 rounded-sm select-none ${isOpen ? 'border-[#fb8500]' : 'border-transparent'}`}
@@ -48,7 +48,7 @@ function DropDownInput({ texts, label, mod_id }: DropDownInputProps) {
       </div>
 
       {isOpen && (
-        <ul className="absolute left-0 bg-black/10 backdrop-blur-xl top-14 w-full m-auto flex flex-col z-50">
+        <ul className="absolute left-0 bg-black/10 backdrop-blur-xl top-10 w-full m-auto flex flex-col z-50">
           {texts.map((value, index) => (
             <li
               key={index}

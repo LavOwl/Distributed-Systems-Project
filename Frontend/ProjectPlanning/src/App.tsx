@@ -29,24 +29,26 @@ function App() {
       const formData = new FormData(e.currentTarget);
 
       const processName = formData.get("projectName") as string;
+      const desc = formData.get("Descripción0") as string;
 
       var projectTasks = tasks.map((task) => ({
         name: formData.get(`Nombre de Tarea${task.id}`) as string,
-        startDate: formData.get(`Fecha de Inicio${task.id}`) as string,
-        endDate: formData.get(`Fecha de Fin${task.id}`) as string,
-        category: formData.get(`Categoría${task.id}`) as string,
+        start_date: formData.get(`Fecha de Inicio${task.id}`) as string,
+        end_date: formData.get(`Fecha de Fin${task.id}`) as string,
+        coverage_request: formData.get(`Categoría${task.id}`) as string,
       }));
 
       projectTasks.push({
         name: formData.get(`Nombre de Tarea0`) as string,
-        startDate: formData.get(`Fecha de Inicio0`) as string,
-        endDate: formData.get(`Fecha de Fin0`) as string,
-        category: formData.get(`Categoría0`) as string,
+        start_date: formData.get(`Fecha de Inicio0`) as string,
+        end_date: formData.get(`Fecha de Fin0`) as string,
+        coverage_request: formData.get(`Categoría0`) as string,
       })
 
       const payload = {
         title: processName,
-        tasks: projectTasks,
+        description: desc,
+        stages: projectTasks,
       };
 
       try {

@@ -1,3 +1,4 @@
+#type: ignore
 from pydantic import ValidationError
 from flask import Blueprint, request, jsonify
 from src.web.services.bonita_service import BonitaService
