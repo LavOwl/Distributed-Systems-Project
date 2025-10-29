@@ -1,14 +1,14 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from enum import Enum as PyEnum
-from src.core.project.model import ProjectStatus
+
 from src.core.validators.stage import StageSchema as ProjectStageValidator
 
 
 class ProjectValidator(BaseModel):
     title: str = Field(..., max_length=100)
     description: Optional[str] = Field(None, max_length=255)
-    status: ProjectStatus = ProjectStatus.PENDIENTE
+   
     stages: Optional[List[ProjectStageValidator]] = []
 
     @validator('title')

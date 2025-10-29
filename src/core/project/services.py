@@ -1,5 +1,5 @@
 from src.core.database import db
-from src.core.project.model import Project, ProjectStatus
+from src.core.project.model import Project
 from src.core.stage.services import crear_stage
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -12,7 +12,7 @@ def create_project(name, description, stages) -> Project:
         project = Project(
             name=name,
             description=description,
-            status=ProjectStatus.PENDIENTE
+         
         )
         
         # Almacenamiento del project en la base de datos.
