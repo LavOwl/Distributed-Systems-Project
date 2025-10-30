@@ -24,7 +24,7 @@ class Stage(db.Model):
     """
     __tablename__ = "stages"
     id = db.Column(db.Integer, primary_key=True)
-    id_project = db.Column(db.Integer, nullable=False)
+    id_project = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
     start_date = db.Column(db.DateTime, nullable=False)
@@ -32,6 +32,7 @@ class Stage(db.Model):
     coverage_request = db.Column(Enum(CoverageRequest), nullable=False)
     status = db.Column(Enum(StatusStage), default=StatusStage.PENDING, nullable=False)
     
+    project = db.relationship("Project", back_populates="stages")
     
     def to_dict(self):
            return {

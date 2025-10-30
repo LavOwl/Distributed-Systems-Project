@@ -24,3 +24,4 @@ class Project(db.Model):
 
     # Relación entre project y stage.
     stages = db.relationship("Stage", back_populates="project")
+    observations = db.relationship("Observation", back_populates="project")

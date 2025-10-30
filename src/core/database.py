@@ -27,8 +27,11 @@ def reset(app):
     """
     with app.app_context():
         print("Eliminando base de datos...")
+        
+        
         db.drop_all()
         print("Creando base de datos nuevamente...")
         db.create_all()
         db.session.commit()
         print("Tablas creadas ✅.")
+        

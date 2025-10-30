@@ -15,7 +15,9 @@ class Observation(db.Model):
     """
     __tablename__ = "observations"
     id = db.Column(db.Integer, primary_key=True)
-    id_project = db.Column(db.Integer, nullable=False)
+    id_project = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
     status = db.Column(Enum(Status), nullable=False, default=Status.PENDING)
+    
+    project = db.relationship("Project", back_populates="observations")
