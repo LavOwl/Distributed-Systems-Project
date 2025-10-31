@@ -55,3 +55,5 @@ def set_case_id(project: Project, case_id):
         # Manejo del error en caso que la base de datos falle.
         db.session.rollback()
         raise Exception(f"No se pudo actualizar el case_id: {error}")
+
+

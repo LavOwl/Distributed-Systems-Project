@@ -67,3 +67,15 @@ def iniciar_proyecto():
 
     # Devuelve respuesta final
     return jsonify({"message": "Proyecto creado y proceso de Bonita iniciado correctamente."})
+
+
+
+
+
+@bonita_bp.post("/v1/login")
+def login():
+    bonita = BonitaService()
+    if not bonita.bonita_login():
+        return jsonify({"error": "No se pudo autenticar en Bonita"}), 500
+    return jsonify({"ok": "autenticación correcta en Bonita"}), 201
+

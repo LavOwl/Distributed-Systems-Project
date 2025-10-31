@@ -30,6 +30,7 @@ class Stage(db.Model):
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=True)
     coverage_request = db.Column(Enum(CoverageRequest), nullable=False)
+    requires_contribution = db.Column(db.Boolean, default=False, nullable=False)
     status = db.Column(Enum(StatusStage), default=StatusStage.PENDING, nullable=False)
     
     project = db.relationship("Project", back_populates="stages")
@@ -43,5 +44,6 @@ class Stage(db.Model):
                 "start_date": self.start_date.isoformat() if self.start_date else None,
                 "end_date": self.end_date.isoformat() if self.end_date else None,
                 "coverage_request": self.coverage_request.name if self.coverage_request else None,
+                "requires_contribution": self.requires_contribution,
                 "status": self.status.name if self.status else None
             }

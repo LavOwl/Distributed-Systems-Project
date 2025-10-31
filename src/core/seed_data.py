@@ -13,6 +13,11 @@ def run():
         name="Construcción de escuela",
         description="Proyecto para la construcción de una nueva escuela en la comunidad local."
     )
+    project2 = Project(
+        case_id=1211,
+        name="Construcción de comedor",
+        description="Proyecto para la construcción del nuevo comedor universitario."
+    )
     
     db.session.add(project)
 
@@ -23,7 +28,8 @@ def run():
         start_date="2025-01-10 00:00:00",
         end_date="2025-01-20 23:59:59",
         coverage_request=CoverageRequest.DINERO,
-        status=StatusStage.PENDING
+        status=StatusStage.PENDING,
+        requires_contribution=True
     )
     
     stage_2 = Stage(
@@ -33,7 +39,8 @@ def run():
         start_date="2025-02-01 00:00:00",
         end_date="2025-06-30 23:59:59",
         coverage_request=CoverageRequest.MATERIALES,
-        status=StatusStage.PENDING
+        status=StatusStage.PENDING,
+        requires_contribution=False
     )
     
     stage_3 = Stage(
@@ -43,7 +50,30 @@ def run():
         start_date="2025-07-01 00:00:00",
         end_date="2025-07-15 23:59:59",
         coverage_request=CoverageRequest.MANO_DE_OBRA,
-        status=StatusStage.PENDING
+        status=StatusStage.PENDING,
+        requires_contribution=True
+    )
+    
+    stage_4 = Stage(
+        id_project=2,
+        name="Construcción de comedor",
+        description="Se realiza la construcción del nuevo comedor universitario.", 
+        start_date="2025-07-01 00:00:00",
+        end_date="2025-08-15 23:59:59",
+        coverage_request=CoverageRequest.MANO_DE_OBRA,
+        status=StatusStage.PENDING,
+        requires_contribution=True
+    )
+    
+    stage_5 = Stage(
+        id_project=2,
+        name="Inspección final",
+        description="Inspección y aprobación del comedor construido.",  
+        start_date="2025-08-16 00:00:00",
+        end_date="2025-08-31 23:59:59",
+        coverage_request=CoverageRequest.DINERO,
+        status=StatusStage.PENDING,
+        requires_contribution=True
     )
 
     observation = Observation(
@@ -64,6 +94,8 @@ def run():
     db.session.add(stage)
     db.session.add(stage_2)
     db.session.add(stage_3)
+    db.session.add(stage_4)
+    db.session.add(stage_5)
     db.session.add(observation_2)
     db.session.add(observation)
     
