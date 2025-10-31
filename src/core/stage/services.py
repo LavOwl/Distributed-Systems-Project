@@ -34,9 +34,36 @@ def get_stages_by_project_id(project_id: int):
     stages = Stage.query.filter_by(id_project=project_id, status=StatusStage.PENDING, requires_contribution = True).all()
     return stages
 
+
 def get_all_stages_by_project():
     """
     Obtiene todas las etapas de todos los proyectos.
     """
     stages = Stage.query.filter_by(status=StatusStage.PENDING, requires_contribution = True).all()
     return stages
+
+
+def get_pending_stage_by_id(stage_id: int):
+    """
+    retorna una etapa por su ID, solo si está pendiente.
+    """
+    stage = Stage.query.filter_by(id=stage_id, status=StatusStage.PENDING).first()
+    
+    return stage
+
+
+def cover_stage(stage: Stage):
+    """
+    Cubre una etapa específica según su ID.
+    """
+    try:
+        stage.status = StatusStage.IN_PROGRESS
+        db.session.commit()
+    except SQLAlchemyError as error:   
+        # Manejo del error en caso que la base de datos falle.
+        db.session.rollback()
+        raise Exception(f"Error al registrar el stage.")
+    return stage
+
+    
+    
