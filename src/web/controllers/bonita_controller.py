@@ -36,7 +36,6 @@ def iniciar_proyecto():
     try:
         project_in = ProjectValidator.model_validate(payload)
     except ValidationError as e:
-        print("QUE PASO? ", e.errors())
         return jsonify({"errors": e.errors()}), 400
 
 
@@ -70,12 +69,16 @@ def iniciar_proyecto():
 
 
 
-
-
 @bonita_bp.post("/v1/login")
-def login():
+def bonita_login():
+    """
+    Realiza el login en Bonita y devuelve un mensaje de éxito o error.
+    """
+    # Recibe el JSON del body.
+    data = request.get_json(silent=True) or {}
+    
     bonita = BonitaService()
-    if not bonita.bonita_login():
+    if bonita.bonita_login(data):
+        return jsonify({"message": "Login en Bonita exitoso."}), 201
+    else:
         return jsonify({"error": "No se pudo autenticar en Bonita"}), 500
-    return jsonify({"ok": "autenticación correcta en Bonita"}), 201
-

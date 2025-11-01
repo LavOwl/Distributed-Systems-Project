@@ -16,47 +16,52 @@ class BonitaService:
         self.csrf_token = None
 
 
-    def bonita_login(self):
+    def bonita_login(self, data=None):
         """
         Se conecta al loginservice de Bonita y devuelve una sesión de requests 
         con las cookies de autenticación.
         """
 
-        # Si faltan variables lanza una excepción.
-        if not self.base_url or not self.username or not self.password:
-            raise ValueError("BONITA_URL, BONITA_USER o BONITA_PASS no están configurados.")
+        username = data.get("username")         
+        password = data.get("password") 
         
+        if not self.base_url or not username or not password:
+            raise ValueError("BONITA_URL, username o passwords no están configurados.")
+    
         print("URL", self.base_url)
-        # Prepara los datos de la url y de los headers para hacer la petición.
+    
         login_url = f"{self.base_url}/loginservice"
-        login_data = {
-            'username': self.username,
-            'password': self.password,
+    
+        params = {
+            'username': username,
+            'password': password,
             'redirect': 'false'
         }
+    
         self.session = requests.Session()
 
         try:
-
-            # Realiza la petición POST con los datos previamente guardados.
-            response = self.session.post(
+            # Usa GET, no POST 
+            response = self.session.get(
                 login_url,
-                data=login_data,
-                headers={'Content-Type': 'application/x-www-form-urlencoded'}
+                params=params,  
+                allow_redirects=False
             )
+        
 
-            # Levanta una excepción para los errores del tipo 4xx y 5xx.
-            response.raise_for_status()
-
-            # Guarda el token de la sesión en la variable de instancia.
+            # Guarda el token
             token = self.session.cookies.get("X-Bonita-API-Token")
             if not token:
-                raise RuntimeError("No se recibió token de Bonita después del login.")
+                print("No se recibió X-Bonita-API-Token")
+                return False
+                
             self.csrf_token = token
+            print("Login exitoso! Token:", token)
             return self.session
-        except (HTTPError, RequestException, ValueError):
+            
+        except Exception as e:
+            print(f"Error en login: {e}")
             return False
-
 
     def obtener_id_proceso(self, name_process):
         """
