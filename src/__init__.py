@@ -1,7 +1,6 @@
 from src.web.blueprints import register_blueprints
 from src.config.config import get_config
 from src.core.database import db, reset
-from src.core import seed_data
 from flask_cors import CORS
 from flask import Flask
 
@@ -25,6 +24,7 @@ def create_app() -> Flask:
     # Comando para crear las tablas principales.
     @app.cli.command(name="seed-data")
     def seed_basic():
+        from src.core import seed_data
         seed_data.run()
 
     # Renderización del home.
