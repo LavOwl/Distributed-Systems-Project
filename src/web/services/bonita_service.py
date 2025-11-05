@@ -22,8 +22,8 @@ class BonitaService:
         con las cookies de autenticación.
         """
 
-        username = data.get("username")         
-        password = data.get("password") 
+        username = data.get("username") or self.username        
+        password = data.get("password") or self.password
         
         if not self.base_url or not username or not password:
             raise ValueError("BONITA_URL, username o passwords no están configurados.")

@@ -13,7 +13,7 @@ class StageSchema(BaseModel):
     start_date: datetime
     end_date: Optional[datetime] = None
     coverage_request: CoverageRequest
-    requires_contributor: bool = False
+    requires_contribution: bool = False
 
     @validator('end_date')
     def end_date_after_start_date(cls, v, values):

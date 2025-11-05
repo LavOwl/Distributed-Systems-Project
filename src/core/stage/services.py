@@ -2,7 +2,7 @@ from src.core.database import db
 from src.core.stage.model import Stage, CoverageRequest, StatusStage
 from sqlalchemy.exc import SQLAlchemyError
 
-def crear_stage(project_id, coverage_request, requires_contribution, name, start_date, end_date=None):
+def crear_stage(id_project, coverage_request, requires_contribution, name, start_date, end_date=None):
     """
     Creación de un stage asociado a un proyecto.
     """
@@ -14,7 +14,7 @@ def crear_stage(project_id, coverage_request, requires_contribution, name, start
             end_date=end_date,
             coverage_request=CoverageRequest[coverage_request],
             requires_contribution=requires_contribution,
-            project_id=project_id
+            id_project=id_project
         )
 
         # Almacenamiento del stage en la base de datos.

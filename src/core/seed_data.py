@@ -20,6 +20,7 @@ def run():
     )
     
     db.session.add(project)
+    db.session.add(project2)
 
     stage = Stage(
         id_project=1,

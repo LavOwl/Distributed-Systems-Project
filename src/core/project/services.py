@@ -22,12 +22,12 @@ def create_project(name, description, stages) -> Project:
         # Creación de los stages asociados.
         for stage in stages:
             crear_stage(
-                project_id=project.id,
+                id_project=project.id,
                 name=stage["name"],
                 start_date=stage["start_date"],
                 end_date=stage.get("end_date"),
                 coverage_request=stage["coverage_request"],
-                requires_contributor=stage["requires_contributor"]
+                requires_contribution=stage["requires_contribution"]
             )
 
         # Commit en la base de datos para persistir las relaciones.
