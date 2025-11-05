@@ -37,7 +37,7 @@ def get_stages_by_project_id(project_id: int):
 
 def get_all_stages_by_project():
     """
-    Obtiene todas las etapas de todos los proyectos.
+    Obtiene todas las etapas pendientes de todos los proyectos.
     """
     stages = Stage.query.filter_by(status=StatusStage.PENDING, requires_contribution = True).all()
     return stages

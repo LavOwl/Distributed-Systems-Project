@@ -1,7 +1,8 @@
-from src.core.database import db
-from src.core.project.model import Project
 from src.core.stage.services import crear_stage
+from src.core.project.model import Project
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
+from src.core.database import db
 
 def create_project(name, description, stages) -> Project:
     """
@@ -57,3 +58,9 @@ def set_case_id(project: Project, case_id):
         raise Exception(f"No se pudo actualizar el case_id: {error}")
 
 
+def get_projects_with_all_the_stages():
+    """
+    Devuelve todos los proyectos con todas sus etapas.
+    """
+    projects = Project.query.options(joinedload(Project.stages)).all()
+    return projects

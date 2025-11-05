@@ -10,7 +10,7 @@ def get_stages_project(project_id: int):
 
 def get_all_stages_by_project():
     """
-    Obtiene todas las etapas de todos los proyectos.
+    Obtiene todas las etapas pendientes de todos los proyectos.
     """
     stages = services.get_all_stages_by_project()
     return [stage.to_dict() for stage in stages]
