@@ -2,14 +2,10 @@ import requests
 import os
 
 BONITA_URL = os.getenv("BONITA_BASE_URL", "http://localhost:8080/bonita").rstrip("/")
-BONITA_USER = os.getenv("BONITA_USER", "walter.bates")
-BONITA_PASS = os.getenv("BONITA_PASSWORD", "bpm")
 
 class BonitaService:
     def __init__(self):
         self.base_url = BONITA_URL
-        self.username =  BONITA_USER
-        self.password =  BONITA_PASS
         self.session = requests.Session()
         self.csrf_token = None
 
@@ -18,8 +14,8 @@ class BonitaService:
         """
         Se conecta al loginservice de Bonita y devuelve una sesión de requests con las cookies de autenticación.
         """
-        username = data.get("username") or self.username        
-        password = data.get("password") or self.password
+        username = data.get("username")     
+        password = data.get("password")
         
         if not self.base_url or not username or not password:
             raise ValueError("BONITA_URL, username o passwords no están configurados.")
@@ -44,16 +40,52 @@ class BonitaService:
             # Guarda el token.
             token = self.session.cookies.get("X-Bonita-API-Token")
             if not token:
-                print("No se recibió X-Bonita-API-Token")
                 return False
-                
             self.csrf_token = token
-            print("Login exitoso! Token:", token)
             return self.session
-            
         except Exception as e:
-            print(f"Error en login: {e}")
             return False
+
+
+    def obtener_info_usuario(self):
+        """
+        Verifica si la sesión de Bonita sigue siendo válida y devuelve información
+        del usuario autenticado o lanza una excepción si no está logueado.
+        """
+        user_url = f"{self.base_url}/API/system/session/unusedId"
+
+        headers = {
+            "X-Bonita-API-Token": self.csrf_token
+        }
+
+        response = self.session.get(user_url, headers=headers)
+
+        if response.status_code != 200:
+            raise Exception("Sesión inválida o expirada")
+
+        return response.json()
+
+
+    def obtener_grupos_usuario(self, user_id):
+        """
+        Devuelve una lista de los grupos a los que pertenece el usuario.
+        """
+        url = f"{self.base_url}/API/identity/membership"
+        params = {"f": f"user_id={user_id}"}
+        headers = {"X-Bonita-API-Token": self.csrf_token}
+
+        response = self.session.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        memberships = response.json()
+
+        # Cada membership tiene un "group_id", así que se debe obtener el nombre del grupo.
+        grupos = []
+        for membership in memberships:
+            group_url = f"{self.base_url}/API/identity/group/{membership['group_id']}"
+            group_resp = self.session.get(group_url, headers=headers)
+            if group_resp.status_code == 200:
+                grupos.append(group_resp.json()["name"])
+        return grupos
 
 
     def obtener_id_proceso(self, name_process):

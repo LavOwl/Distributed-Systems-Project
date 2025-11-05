@@ -1,3 +1,4 @@
+from src.web.handlers.authentication import require_bonita_auth
 from flask import Blueprint, jsonify, request
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
@@ -5,6 +6,7 @@ from werkzeug.exceptions import BadRequest
 project_bp = Blueprint("project", __name__)
 
 @project_bp.get("/v1/get_projects_with_stages")
+@require_bonita_auth("consejo_directivo")
 def get_projects_with_stages():
     """
     Devuelve todos los proyectos con todas sus etapas.
