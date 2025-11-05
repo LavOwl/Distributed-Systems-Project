@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 
-project_bp = Blueprint("projects", __name__, url_prefix="/projects")
+project_bp = Blueprint("project", __name__)
 
 @project_bp.get("/v1/get_projects_with_stages")
 def get_projects_with_stages():
@@ -26,10 +26,7 @@ def add_observation(project_id: int):
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
-    return jsonify({
-        "message": f"Observación '{observation.name}' agregada correctamente al proyecto {project_id}.",
-        "observation": observation.to_dict()
-    }), 201
+    return jsonify({"message": f"Observación '{observation.name}' agregada correctamente al proyecto {project_id}."}), 201
 
 
 @project_bp.patch("/v1/upload_corrected_observation/<int:observation_id>")
