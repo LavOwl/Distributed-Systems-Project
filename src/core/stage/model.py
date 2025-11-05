@@ -10,6 +10,7 @@ class CoverageRequest(enum.Enum):
     MATERIALES = "MATERIALES"
     MANO_DE_OBRA = "MANO_DE_OBRA"
 
+
 class StatusStage(enum.Enum):
     """
     Enum para los estados de una etapa del proyecto.
@@ -17,6 +18,7 @@ class StatusStage(enum.Enum):
     PENDING = "PENDING"
     IN_PROGRESS = "IN_PROGRESS"
     FINISHED = "FINISHED"
+
 
 class Stage(db.Model):
     """

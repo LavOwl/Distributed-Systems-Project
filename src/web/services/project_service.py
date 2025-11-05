@@ -8,15 +8,12 @@ def create_project_from_payload(payload):
     """
     Valida el payload y crea el proyecto con sus stages, y retorna el proyecto creado o lanza ValidationError.
     """
-    # Validación de los datos.
     project_in = ProjectValidator.model_validate(payload)
 
-    # Extracción de los datos.
     name = project_in.title
     description = project_in.description or ""
     stages = [stage.model_dump() for stage in project_in.stages]
 
-    # Creación del proyecto.
     return create_project(name, description, stages)
 
 
@@ -52,7 +49,6 @@ def add_observation(project_id: int, data: dict):
     except Exception as e:
         raise BadRequest(str(e))
 
-    # Creación de la observación en la base de datos.
     observation = create_observation(
         project_id=project_id,
         name=validated.name,

@@ -1,15 +1,4 @@
 from src.core.database import db
-from sqlalchemy import Enum
-import enum
-
-# class ProjectStatus(enum.Enum):
-#     """
-#     Enum para los estados de un proyecto.
-#     """
-#     PENDIENTE = "Pendiente"
-#     EN_PROGRESO = "En progreso"
-#     COMPLETADO = "Completado"
-
 
 class Project(db.Model):
     """
@@ -20,8 +9,9 @@ class Project(db.Model):
     case_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
-    #status = db.Column(db.Enum(ProjectStatus), default=ProjectStatus.PENDIENTE, nullable=False)
 
     # Relación entre project y stage.
     stages = db.relationship("Stage", back_populates="project")
+
+    # Relación entre project y observation.
     observations = db.relationship("Observation", back_populates="project")

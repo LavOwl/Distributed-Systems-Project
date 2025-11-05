@@ -15,7 +15,7 @@ def create_observation(project_id: int, name: str, description: str, status):
 
     db.session.add(new_observation)
     db.session.commit()
-
+    
     return new_observation
 
 
