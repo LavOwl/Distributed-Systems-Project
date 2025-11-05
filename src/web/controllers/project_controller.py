@@ -10,34 +10,60 @@ project_bp = Blueprint("project", __name__)
 def get_projects_with_stages():
     """
     Devuelve todos los proyectos con todas sus etapas.
+    (1) No recibe nada.
+    (2) Devuelve:
+        1. 200 - lista de proyectos con sus etapas.
+        2. 401 - error: sesión expirada o inválida.
+        3. 403 - error: el usuario no tiene permisos para acceder.
     """
     result = project_service.list_projects_with_stages()
     return jsonify(result)
 
 
 @project_bp.post("/v1/add_observation/<int:project_id>")
+@require_bonita_auth("consejo_directivo")
 def add_observation(project_id: int):
     """
     Agrega una observación a un proyecto a partir de su ID de proyecto.
+    (1) Recibe (parámetro en la ruta):
+        1. project_id: int.
+    (2) Recibe(JSON en el BODY):
+        1. name: string.
+        2. description: string.
+    (3) Devuelve:
+        1. 201 - message: observación agregada correctamente al proyecto
+        2. 400 - error: el nombre de la observación no puede estar vacío.
+        3. 400 - error: la descripción no puede tener más de 255 caracteres.
+        4. 401 - error: sesión expirada o inválida.
+        5. 403 - error: el usuario no tiene permisos para acceder.
+        6. 500 - error: ocurrió un error inesperado.
     """
     data = request.get_json()
 
     try:
-        observation = project_service.add_observation(project_id, data)
+        project_service.add_observation(project_id, data)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
-    return jsonify({"message": f"Observación '{observation.name}' agregada correctamente al proyecto {project_id}."}), 201
+    return jsonify({"message": f"Observación agregada correctamente al proyecto."}), 201
 
 
 @project_bp.patch("/v1/upload_corrected_observation/<int:observation_id>")
+@require_bonita_auth("ong_originante")
 def upload_corrected_observation(observation_id: int):
     """
     Marcar una observación como completada a partir de su ID.
+    (1) Recibe (parámetro en la ruta):
+        1. observation_id: int.
+    (2) Devuelve:
+        1. 200 - message: la observación ha sido marcada como completada.
+        2. 404 - message: no se encontró la observación.
+        3. 401 - error: sesión expirada o inválida.
+        4. 403 - error: el usuario no tiene permisos para acceder.
     """
     observation = project_service.upload_corrected_observation(observation_id)
 
     if not observation:
-        return jsonify({"message": f"No se encontró la observación con ID {observation_id}"}), 404
-    return jsonify({"message": f"La observación con ID {observation.id} ha sido marcada como completada."}), 200
+        return jsonify({"message": f"No se encontró la observación."}), 404
+    return jsonify({"message": f"La observación ha sido marcada como completada."}), 200

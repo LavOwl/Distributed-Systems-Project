@@ -15,8 +15,8 @@ def bonita_login():
         1. username: string.
         2. password: string.
     (2) Devuelve:
-        1. 401 - error: Usuario o contraseña incorrectos.
-        2. 200 - message: Login exitoso.
+        1. 200 - message: login exitoso.
+        2. 401 - error: usuario o contraseña incorrectos.
     """
     # Recibe el JSON del body, y hace el login con Bonita.
     data = request.get_json(silent=True) or {}
@@ -31,7 +31,7 @@ def bonita_login():
     jsessionid = session.cookies.get("JSESSIONID")
     token = session.cookies.get("X-Bonita-API-Token")
 
-    # Devolverlas al cliente (por header o cookie HTTP)
+    # Setear las cookies para el cliente.
     response = jsonify({"message": "Login exitoso"})
     response.set_cookie("JSESSIONID", jsessionid)
     response.set_cookie("X-Bonita-API-Token", token)
