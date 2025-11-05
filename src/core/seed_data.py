@@ -8,21 +8,25 @@ def run():
     Creación de las tablas iniciales.
     """
 
-    project = Project(
+    # Creación de proyectos.
+    project_1 = Project(
         case_id=123,
         name="Construcción de escuela",
         description="Proyecto para la construcción de una nueva escuela en la comunidad local."
     )
-    project2 = Project(
+
+    project_2 = Project(
         case_id=1211,
         name="Construcción de comedor",
         description="Proyecto para la construcción del nuevo comedor universitario."
     )
     
-    db.session.add(project)
-    db.session.add(project2)
+    # Añadir proyectos a la sesión.
+    db.session.add(project_1)
+    db.session.add(project_2)
 
-    stage = Stage(
+    # Creación de etapas.
+    stage_1 = Stage(
         id_project=1,
         name="Relevamiento inicial",
         description="Visita al sitio y análisis de necesidades.",
@@ -77,13 +81,21 @@ def run():
         requires_contribution=True
     )
 
-    observation = Observation(
+    # Añadir observaciones a la sesión.
+    db.session.add(stage_1)
+    db.session.add(stage_2)
+    db.session.add(stage_3)
+    db.session.add(stage_4)
+    db.session.add(stage_5)
+
+    # Creación de observaciones.
+    observation_1 = Observation(
         id_project=1,
         name="Revisar planos",
         description="Verificar planos enviados por el cliente.",
         status=Status.PENDING
     )
-    
+
     observation_2 = Observation(
         id_project=1,
         name="Aprobar presupuesto",
@@ -91,14 +103,9 @@ def run():
         status=Status.PENDING
     )
     
-    # Agregar stage y observation a la sesión.
-    db.session.add(stage)
-    db.session.add(stage_2)
-    db.session.add(stage_3)
-    db.session.add(stage_4)
-    db.session.add(stage_5)
+    # Agregar observaciones a la sesión.
+    db.session.add(observation_1)
     db.session.add(observation_2)
-    db.session.add(observation)
     
     # Almacenamiento de las tablas en la base de datos.
     db.session.commit()

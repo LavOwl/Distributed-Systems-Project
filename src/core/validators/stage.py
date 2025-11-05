@@ -1,14 +1,12 @@
-from src.core.database import db
-from sqlalchemy import Enum
-import enum
 from src.core.stage.model import CoverageRequest
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional
 
-
-# Esquema de validación de datos con Pydantic
 class StageSchema(BaseModel):
+    """
+    Esquema de validación de datos con Pydantic.
+    """
     name: str = Field(..., max_length=100)
     start_date: datetime
     end_date: Optional[datetime] = None

@@ -1,6 +1,4 @@
 import requests
-from requests.exceptions import HTTPError, RequestException
-from flask import jsonify
 import os
 
 BONITA_URL = os.getenv("BONITA_BASE_URL", "http://localhost:8080/bonita").rstrip("/")
@@ -18,17 +16,13 @@ class BonitaService:
 
     def bonita_login(self, data=None):
         """
-        Se conecta al loginservice de Bonita y devuelve una sesión de requests 
-        con las cookies de autenticación.
+        Se conecta al loginservice de Bonita y devuelve una sesión de requests con las cookies de autenticación.
         """
-
         username = data.get("username") or self.username        
         password = data.get("password") or self.password
         
         if not self.base_url or not username or not password:
             raise ValueError("BONITA_URL, username o passwords no están configurados.")
-    
-        print("URL", self.base_url)
     
         login_url = f"{self.base_url}/loginservice"
     
@@ -41,15 +35,13 @@ class BonitaService:
         self.session = requests.Session()
 
         try:
-            # Usa GET, no POST 
             response = self.session.get(
                 login_url,
                 params=params,  
                 allow_redirects=False
             )
-        
 
-            # Guarda el token
+            # Guarda el token.
             token = self.session.cookies.get("X-Bonita-API-Token")
             if not token:
                 print("No se recibió X-Bonita-API-Token")
@@ -63,11 +55,11 @@ class BonitaService:
             print(f"Error en login: {e}")
             return False
 
+
     def obtener_id_proceso(self, name_process):
         """
         Obtiene el ID del proceso recibido por parámetro.
         """
-        
         # Prepara los datos para la petición.
         url = f"{self.base_url}/API/bpm/process"
         params = {
@@ -93,7 +85,6 @@ class BonitaService:
         """
         Recibe un nombre de proceso, busca su ID asociado, lo inicia y retorna un case_id.
         """
-
         # Busca el ID asociado al proceso.
         process_id = self.obtener_id_proceso(process_name)
         if not process_id:
@@ -119,7 +110,6 @@ class BonitaService:
         """
         Devuelve la primer tarea pendiente a partir de un case_id.
         """
-
         # Prepara los datos para hacer la petición.
         url = f"{self.base_url}/API/bpm/userTask"
         params = {
@@ -146,7 +136,6 @@ class BonitaService:
         """
         Completa la tarea pendiente del case_id recibido por parámetro.
         """
-
         # Busca el task_id asociado a la primer tarea pendiente del case_id recibido.
         task_id = self.obtener_tarea_pendiente(case_id)
         if not task_id:

@@ -1,4 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy 
+from src.core.observation.model import Observation
+from src.core.project.model import Project
+from flask_sqlalchemy import SQLAlchemy
+from src.core.stage.model import Stage
 
 db = SQLAlchemy()
 
@@ -10,9 +13,6 @@ def init_app(app):
     config(app)
     return app
 
-from src.core.project.model import Project
-from src.core.observation.model import Observation
-from src.core.stage.model import Stage
 
 def config(app):
     """

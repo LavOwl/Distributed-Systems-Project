@@ -48,7 +48,6 @@ def get_pending_stage_by_id(stage_id: int):
     retorna una etapa por su ID, solo si está pendiente.
     """
     stage = Stage.query.filter_by(id=stage_id, status=StatusStage.PENDING).first()
-    
     return stage
 
 
