@@ -30,3 +30,15 @@ def add_observation(project_id: int):
         "message": f"Observación '{observation.name}' agregada correctamente al proyecto {project_id}.",
         "observation": observation.to_dict()
     }), 201
+
+
+@project_bp.patch("/v1/upload_corrected_observation/<int:observation_id>")
+def upload_corrected_observation(observation_id: int):
+    """
+    Marcar una observación como completada a partir de su ID.
+    """
+    observation = project_service.upload_corrected_observation(observation_id)
+
+    if not observation:
+        return jsonify({"message": f"No se encontró la observación con ID {observation_id}"}), 404
+    return jsonify({"message": f"La observación con ID {observation.id} ha sido marcada como completada."}), 200

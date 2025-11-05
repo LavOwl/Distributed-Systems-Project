@@ -1,6 +1,6 @@
 from src.core.project.services import create_project, set_case_id, get_projects_with_all_the_stages
+from src.core.observation.services import create_observation, mark_observation_as_resolved
 from src.core.validators.observation import ObservationValidator
-from src.core.observation.services import create_observation 
 from src.core.validators.project import ProjectValidator
 from werkzeug.exceptions import BadRequest
 
@@ -61,3 +61,10 @@ def add_observation(project_id: int, data: dict):
     )
 
     return observation
+
+
+def upload_corrected_observation(observation_id: int):
+    """
+    Marca una observación como completa.
+    """
+    return mark_observation_as_resolved(observation_id)

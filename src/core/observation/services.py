@@ -1,4 +1,5 @@
 from src.core.observation.model import Observation
+from src.core.observation.model import Status
 from src.core.database import db
 
 def create_observation(project_id: int, name: str, description: str, status):
@@ -16,3 +17,18 @@ def create_observation(project_id: int, name: str, description: str, status):
     db.session.commit()
 
     return new_observation
+
+
+def mark_observation_as_resolved(observation_id: int):
+    """
+    Marca una observación como completa, si existe.
+    """
+    observation = Observation.query.get(observation_id)
+
+    if not observation:
+        return None
+
+    observation.status = Status.RESOLVED
+    db.session.commit()
+
+    return observation
