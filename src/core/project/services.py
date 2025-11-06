@@ -4,19 +4,19 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from src.core.database import db
 
-def create_project(name, description, stages) -> Project:
+def create_project(user_id, name, description, stages) -> Project:
     """
     Creación de un proyecto y de sus stages asociados.
     """
     try:
         # Seteo de variables.
         project = Project(
+            user_id=user_id,
             name=name,
-            description=description,
-         
+            description=description
         )
         
-        # Almacenamiento del project en la base de datos.
+        # Almacenamiento del proyecto en la base de datos.
         db.session.add(project)
         db.session.flush()
 
@@ -31,16 +31,11 @@ def create_project(name, description, stages) -> Project:
                 requires_contribution=stage["requires_contribution"]
             )
 
-        # Commit en la base de datos para persistir las relaciones.
         db.session.commit()
-
-        # Devolvemos el proyecto creado.
         return project
     except SQLAlchemyError as error:
-        
-        # Manejo del error en caso que la base de datos falle.
         db.session.rollback()
-        raise Exception(f"Error al registrar el stage.")
+        raise Exception(f"Error al registrar el proyecto.")
 
 
 def set_case_id(project: Project, case_id):

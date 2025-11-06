@@ -6,11 +6,11 @@ class ProjectValidator(BaseModel):
     """
     Esquema de validación de datos con Pydantic.
     """
-    title: str = Field(..., max_length=100)
+    name: str = Field(..., max_length=100)
     description: Optional[str] = Field(None, max_length=255)
     stages: Optional[List[ProjectStageValidator]] = []
 
-    @validator('title')
+    @validator('name')
     def validate_name_not_empty(cls, name_value):
         if not name_value or not name_value.strip():
             raise ValueError('El nombre no puede estar vacío')

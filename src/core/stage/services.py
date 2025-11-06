@@ -21,8 +21,6 @@ def crear_stage(id_project, coverage_request, requires_contribution, name, start
         db.session.add(stage)
         db.session.commit()
     except SQLAlchemyError as error:
-        
-        # Manejo del error en caso que la base de datos falle.
         db.session.rollback()
         raise Exception(f"Error al registrar el stage.")
     

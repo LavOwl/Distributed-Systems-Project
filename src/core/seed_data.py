@@ -11,12 +11,14 @@ def run():
     # Creación de proyectos.
     project_1 = Project(
         case_id=123,
+        user_id=1,
         name="Construcción de escuela",
         description="Proyecto para la construcción de una nueva escuela en la comunidad local."
     )
 
     project_2 = Project(
         case_id=1211,
+        user_id=2,
         name="Construcción de comedor",
         description="Proyecto para la construcción del nuevo comedor universitario."
     )

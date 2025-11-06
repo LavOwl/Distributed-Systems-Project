@@ -10,11 +10,12 @@ def create_project_from_payload(payload):
     """
     project_in = ProjectValidator.model_validate(payload)
 
-    name = project_in.title
+    user_id = project_in.user_id
+    name = project_in.name
     description = project_in.description or ""
     stages = [stage.model_dump() for stage in project_in.stages]
 
-    return create_project(name, description, stages)
+    return create_project(user_id, name, description, stages)
 
 
 def link_to_bonita_case(project, case_id):
@@ -32,6 +33,7 @@ def list_projects_with_stages():
     return [
         {
             "id": p.id,
+            "user_id": p.user_id,
             "name": p.name,
             "description": p.description,
             "stages": [s.to_dict() for s in p.stages]

@@ -1,9 +1,38 @@
 from src.web.handlers.authentication import require_bonita_auth
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
+from pydantic import ValidationError
 
 project_bp = Blueprint("project", __name__)
+
+@project_bp.post("/v1/create_project")
+@require_bonita_auth("ong_originante")
+def create_project():
+    """
+    Crea un proyecto con los datos recibidos.
+    (1) Recibe (JSON en el BODY):
+        1. name: string.
+        2. description: string.
+    (2) Devuelve:
+        1. 201 - message: proyecto creado correctamente.
+        2. 401 - error: sesión expirada o inválida.
+        3. 403 - error: el usuario no tiene permisos para acceder.
+    """
+    try:
+        # Obtener los datos del body.
+        data = request.get_json()
+
+        # Agregación del user_id a los datos.
+        user_id = g.bonita_user["user_id"]
+        data["user_id"] = user_id
+
+        # Creación del proyecto.
+        project_service.create_project_from_payload(data)
+        return jsonify({"message": "Proyecto creado correctamente."}), 201
+    except ValidationError as e:
+        return jsonify({"errors": e.errors()}), 400
+
 
 @project_bp.get("/v1/get_projects_with_stages")
 @require_bonita_auth("consejo_directivo")
@@ -27,7 +56,7 @@ def add_observation(project_id: int):
     Agrega una observación a un proyecto a partir de su ID de proyecto.
     (1) Recibe (parámetro en la ruta):
         1. project_id: int.
-    (2) Recibe(JSON en el BODY):
+    (2) Recibe (JSON en el BODY):
         1. name: string.
         2. description: string.
     (3) Devuelve:
