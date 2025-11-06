@@ -23,12 +23,11 @@ def create_project():
         # Obtener los datos del body.
         data = request.get_json()
 
-        # Agregación del user_id a los datos.
+        # Obtención del user_id de la sesión actual.
         user_id = g.bonita_user["user_id"]
-        data["user_id"] = user_id
 
         # Creación del proyecto.
-        project_service.create_project_from_payload(data)
+        project_service.create_project_from_payload(data, user_id)
         return jsonify({"message": "Proyecto creado correctamente."}), 201
     except ValidationError as e:
         return jsonify({"errors": e.errors()}), 400
