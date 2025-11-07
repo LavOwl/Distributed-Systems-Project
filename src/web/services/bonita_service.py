@@ -45,8 +45,7 @@ class BonitaService:
             return self.session
         except Exception as e:
             return False
-
-
+    
     def obtener_info_usuario(self):
         """
         Verifica si la sesión de Bonita sigue siendo válida y devuelve información

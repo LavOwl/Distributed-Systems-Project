@@ -1,6 +1,7 @@
 from src.web.services.bonita_service import BonitaService
 from flask import Blueprint, request, jsonify
 from src.web.services import project_service
+from src.web.handlers.authentication import require_bonita_auth
 from pydantic import ValidationError
 import os
 

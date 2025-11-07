@@ -4,7 +4,7 @@ from src.core.validators.observation import ObservationValidator
 from src.core.validators.project import ProjectValidator
 from werkzeug.exceptions import BadRequest
 
-def create_project_from_payload(payload, user_id):
+def create_project_from_payload(payload, user_id, case_id):
     """
     Valida el payload y crea el proyecto con sus stages, y retorna el proyecto creado o lanza ValidationError.
     """
@@ -14,7 +14,7 @@ def create_project_from_payload(payload, user_id):
     description = project_in.description or ""
     stages = [stage.model_dump() for stage in project_in.stages]
 
-    return create_project(user_id, name, description, stages)
+    return create_project(user_id,case_id, name, description, stages)
 
 
 def link_to_bonita_case(project, case_id):
