@@ -1,27 +1,11 @@
+from src.web.handlers.helpers import get_authenticated_bonita_service
 from src.web.handlers.authentication import require_bonita_auth
-from src.web.services.bonita_service import BonitaService
 from flask import Blueprint, jsonify, request, g
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
 
 project_bp = Blueprint("project", __name__)
-
-def get_authenticated_bonita_service():
-        """
-        Helper: recupera cookies de autenticación y devuelve un BonitaService configurado.
-        Lanza ValueError si no hay cookies válidas.
-        """
-        csrf_token = request.cookies.get("X-Bonita-API-Token")
-        jsessionid = request.cookies.get("JSESSIONID") 
-        if not csrf_token or not jsessionid:
-            raise ValueError("Sesión de Bonita no válida o expirada")
-        bonita = BonitaService()
-        bonita.csrf_token = csrf_token
-        bonita.session.cookies.set("JSESSIONID", jsessionid)
-        bonita.session.cookies.set("X-Bonita-API-Token", csrf_token)        
-        return bonita
-
 
 @project_bp.post("/v1/create_project")
 @require_bonita_auth("ong_originante")
