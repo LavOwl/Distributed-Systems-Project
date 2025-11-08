@@ -39,7 +39,7 @@ def create_project(user_id, case_id, name, description, stages) -> Project:
         raise Exception(f"Error al registrar el proyecto.")
 
 
-def set_case_id(project: Project, case_id):
+def link_to_bonita_case(project: Project, case_id):
     """
     Setea el case_id de Bonita para un proyecto existente.
     """
@@ -54,7 +54,7 @@ def set_case_id(project: Project, case_id):
         raise Exception(f"No se pudo actualizar el case_id: {error}")
 
 
-def get_projects_with_all_the_stages():
+def get_projects_with_stages():
     """
     Devuelve todos los proyectos con todas sus etapas.
     """

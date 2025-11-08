@@ -7,7 +7,6 @@ from pydantic import ValidationError
 
 project_bp = Blueprint("project", __name__)
 
-
 def get_authenticated_bonita_service():
         """
         Helper: recupera cookies de autenticación y devuelve un BonitaService configurado.
@@ -17,13 +16,12 @@ def get_authenticated_bonita_service():
         jsessionid = request.cookies.get("JSESSIONID") 
         if not csrf_token or not jsessionid:
             raise ValueError("Sesión de Bonita no válida o expirada")
-    
         bonita = BonitaService()
         bonita.csrf_token = csrf_token
         bonita.session.cookies.set("JSESSIONID", jsessionid)
-        bonita.session.cookies.set("X-Bonita-API-Token", csrf_token)
-        
+        bonita.session.cookies.set("X-Bonita-API-Token", csrf_token)        
         return bonita
+
 
 @project_bp.post("/v1/create_project")
 @require_bonita_auth("ong_originante")
@@ -47,10 +45,12 @@ def create_project():
 
         # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
-        #inicio el proceso en Bonita
+
+        # Iniciación del proceso en Bonita.
         case_id = bonita.iniciar_proceso("proceso_de_ejecucion")
+
         # Creación del proyecto.
-        project_service.create_project_from_payload(data, user_id, case_id)
+        project_service.create_project(data, user_id, case_id)
         bonita.completar_tarea(case_id)
         
         return jsonify({"message": "Proyecto creado correctamente."}), 201
@@ -69,7 +69,7 @@ def get_projects_with_stages():
         2. 401 - error: sesión expirada o inválida.
         3. 403 - error: el usuario no tiene permisos para acceder.
     """
-    result = project_service.list_projects_with_stages()
+    result = project_service.get_projects_with_stages()
     return jsonify(result)
 
 
@@ -92,7 +92,6 @@ def add_observation(project_id: int):
         6. 500 - error: ocurrió un error inesperado.
     """
     data = request.get_json()
-
     try:
         project_service.add_observation(project_id, data)
     except BadRequest as e:
@@ -100,6 +99,29 @@ def add_observation(project_id: int):
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
     return jsonify({"message": f"Observación agregada correctamente al proyecto."}), 201
+
+
+@project_bp.get("/v1/get_my_observations")
+@require_bonita_auth("ong_originante")
+def get_my_observations():
+    """
+    Lista todas las observaciones asociadas a los proyectos del usuario autenticado.
+    (1) No recibe nada.
+    (2) Devuelve:
+        1. 200 - lista de observaciones del usuario.
+        2. 401 - error: sesión expirada o inválida.
+        3. 403 - error: el usuario no tiene permisos para acceder.
+        4. 404 - message: no se encontraron observaciones.
+        5. 500 - error: ocurrió un error inesperado.
+    """
+    try:
+        user_id = g.bonita_user.user_id
+        observations = project_service.get_observations_by_user(user_id)
+        if not observations:
+            return jsonify({"message": "No se encontraron observaciones asociadas a tus proyectos."}), 404
+        return jsonify(observations), 200
+    except Exception as e:
+        return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
 
 
 @project_bp.patch("/v1/upload_corrected_observation/<int:observation_id>")
@@ -116,12 +138,9 @@ def upload_corrected_observation(observation_id: int):
         4. 403 - error: el usuario no tiene permisos para acceder.
     """
     observation = project_service.upload_corrected_observation(observation_id)
-
     if not observation:
         return jsonify({"message": f"No se encontró la observación."}), 404
     return jsonify({"message": f"La observación ha sido marcada como completada."}), 200
-
-
 
 
 @project_bp.get("/v1/siguiente")
@@ -138,6 +157,7 @@ def avanzar():
     # Obtención de las cookies de la sesión actual.
     bonita = get_authenticated_bonita_service()
     case_id = request.get_json().get("case_id")
+
     # Avance de la tarea en Bonita.
     bonita.completar_tarea(case_id)
 
