@@ -115,7 +115,7 @@ def get_observations_by_user():
         5. 500 - error: ocurrió un error inesperado.
     """
     try:
-        user_id = g.bonita_user.user_id
+        user_id = g.bonita_user["user_id"]
         observations = project_service.get_observations_by_user(user_id)
         if not observations:
             return jsonify({"message": "No se encontraron observaciones asociadas a tus proyectos."}), 404
