@@ -166,23 +166,18 @@ class BonitaService:
         """
         Devuelve la primer tarea pendiente a partir de un case_id.
         """
-        # Prepara los datos para hacer la petición.
-        url = f"{self.base_url}/API/bpm/userTask"
+        url = f"{self.base_url}/API/bpm/humanTask"
+        
         params = {
-            'caseId': case_id, 
+            'caseId': case_id,
             'state': 'ready'
         }
         headers = {
             'X-Bonita-API-Token': self.csrf_token
         }
 
-        # Realiza la petición.
-        response = self.session.get(url, headers=headers, params=params)
-
-        # Levanta una excepción para los errores 4xx y 5xx.
+        response = self.session.get(url, headers=headers, params=params)    
         response.raise_for_status()
-
-        # Verifica si hay tareas pendientes o no, en caso afirmativo devuelve el ID de la primera.
         if not response.json():
             return None
         return response.json()[0]['id']

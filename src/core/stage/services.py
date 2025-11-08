@@ -1,8 +1,8 @@
-from src.core.database import db
 from src.core.stage.model import Stage, CoverageRequest, StatusStage
 from sqlalchemy.exc import SQLAlchemyError
+from src.core.database import db
 
-def crear_stage(id_project, coverage_request, requires_contribution, name, start_date, end_date=None):
+def crear_stage(id_project, coverage_request, requires_contribution, name, description, start_date, end_date=None):
     """
     Creación de un stage asociado a un proyecto.
     """
@@ -10,6 +10,7 @@ def crear_stage(id_project, coverage_request, requires_contribution, name, start
         # Seteo de variables.
         stage = Stage(
             name=name,
+            description=description,
             start_date=start_date,
             end_date=end_date,
             coverage_request=CoverageRequest[coverage_request],
@@ -61,6 +62,3 @@ def cover_stage(stage: Stage):
         db.session.rollback()
         raise Exception(f"Error al registrar el stage.")
     return stage
-
-    
-    

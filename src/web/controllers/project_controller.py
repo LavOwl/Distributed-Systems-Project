@@ -27,14 +27,14 @@ def create_project():
         # Obtención del user_id de la sesión actual.
         user_id = g.bonita_user["user_id"]
 
-        # Creación del proyecto.
-        project_service.create_project(data, user_id, case_id)
-
         # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
 
         # Iniciación del proceso en Bonita.
         case_id = bonita.iniciar_proceso("proceso_de_ejecucion")
+
+        # Creación del proyecto.
+        project_service.create_project(data, user_id, case_id)
 
         # Seteo de la variable de número de etapas al proceso de Bonita.
         numero_etapas = project_service.contar_etapas_colaborativas(data)

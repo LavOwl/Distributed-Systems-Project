@@ -26,6 +26,7 @@ def create_project(user_id, case_id, name, description, stages) -> Project:
             crear_stage(
                 id_project=project.id,
                 name=stage["name"],
+                description=stage["description"],
                 start_date=stage["start_date"],
                 end_date=stage.get("end_date"),
                 coverage_request=stage["coverage_request"],
