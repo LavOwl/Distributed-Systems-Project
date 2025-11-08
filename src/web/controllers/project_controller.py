@@ -4,7 +4,6 @@ from flask import Blueprint, jsonify, request, g
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
-import json
 
 project_bp = Blueprint("project", __name__)
 
