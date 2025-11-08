@@ -101,9 +101,9 @@ def add_observation(project_id: int):
     return jsonify({"message": f"Observación agregada correctamente al proyecto."}), 201
 
 
-@project_bp.get("/v1/get_my_observations")
+@project_bp.get("/v1/get_observations_by_user")
 @require_bonita_auth("ong_originante")
-def get_my_observations():
+def get_observations_by_user():
     """
     Lista todas las observaciones asociadas a los proyectos del usuario autenticado.
     (1) No recibe nada.
