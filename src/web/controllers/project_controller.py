@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request, g
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
+import json
 
 project_bp = Blueprint("project", __name__)
 
@@ -27,14 +28,20 @@ def create_project():
         # Obtención del user_id de la sesión actual.
         user_id = g.bonita_user["user_id"]
 
+        # Creación del proyecto.
+        project_service.create_project(data, user_id, case_id)
+
         # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
 
         # Iniciación del proceso en Bonita.
         case_id = bonita.iniciar_proceso("proceso_de_ejecucion")
 
-        # Creación del proyecto.
-        project_service.create_project(data, user_id, case_id)
+        # Seteo de la variable de número de etapas al proceso de Bonita.
+        numero_etapas = project_service.contar_etapas_colaborativas(data)
+        bonita.establecer_variable_al_caso(case_id, "numero_etapas", numero_etapas, "java.lang.Integer")
+
+        # Completar tarea en Bonita.
         bonita.completar_tarea(case_id)
         
         return jsonify({"message": "Proyecto creado correctamente."}), 201

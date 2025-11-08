@@ -133,8 +133,33 @@ class BonitaService:
 
         # Levanta una excepción para los errores 4xx y 5xx.
         response.raise_for_status()
+
         # Devuelve un JSON con la respuesta.
         return response.json()['caseId']
+
+
+    def establecer_variable_al_caso(self, case_id, variable_name, value, tipo="java.lang.Integer"):
+        """
+        Establece o actualiza el valor a una variable del caso.
+        """
+        url = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{variable_name}"
+        headers = {
+            'content-type': 'application/json',
+            'X-Bonita-API-Token': self.csrf_token
+        }
+        payload = {
+            "type": tipo,
+            "value": value
+        }
+        
+        response = self.session.put(url, headers=headers, json=payload)
+        response.raise_for_status()
+        if response.text:
+            try:
+                return response.json()
+            except:
+                return {"success": True}
+        return {"success": True}
 
 
     def obtener_tarea_pendiente(self, case_id):

@@ -69,3 +69,11 @@ def upload_corrected_observation(observation_id: int):
     Marca una observación como completa.
     """
     return core_observation_services.upload_corrected_observation(observation_id)
+
+
+def contar_etapas_colaborativas(data):
+    """
+    A partir del JSON recibido al crear un proyecto, cuenta cuántas etapas requieren colaboración.
+    """
+    etapas = data.get("stages", [])
+    return sum(1 for etapa in etapas if etapa.get("requires_contribution"))
