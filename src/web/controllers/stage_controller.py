@@ -46,7 +46,7 @@ def get_all_stages():
 @require_bonita_auth("ong_colaborativa")
 def cover_stage_by_id(stage_id: int):
     """
-    Endpoint para cubrir una etapa específica según su ID.
+    Endpoint para cubrir una etapa específica según su ID, donde la etapa pasa de PENDING a IN_PROGRESS.
     (1) Recibe (parámetro de la ruta):
         1. stage_id: int
     (2) Devuelve:
@@ -67,3 +67,31 @@ def cover_stage_by_id(stage_id: int):
     if stage:
         return jsonify({"message": f"La etapa ha pasado de pendiente a en ejecución exitosamente."}), 200
     return jsonify({"error": f"No se pudo cubrir la etapa. Es posible que ya este en progreso o haya sido cubierta."}), 400
+
+
+@stage_bp.patch("/v1/finish_stage_by_id/<int:stage_id>")
+@require_bonita_auth("ong_colaborativa")
+def finish_stage_by_id(stage_id: int):
+    """
+    Endpoint para finalizar una etapa específica según su ID, 
+    donde la etapa pasa de IN_PROGRESS a FINISHED.
+    (1) Recibe (parámetro de la ruta):
+        1. stage_id: int
+    (2) Devuelve:
+        1. 200 - message: la etapa ha pasado a finalizada exitosamente.
+        2. 400 - error: no se pudo finalizar la etapa. 
+        3. 401 - error: sesión expirada o inválida.
+        4. 403 - error: el usuario no tiene permisos para acceder.
+    """
+    stage = stage_service.finish_stage(stage_id)
+    if not stage:
+        return jsonify({"error": "No se pudo finalizar la etapa. Verifique su estado actual."}), 400
+
+    # Obtención de la sesión Bonita autenticada
+    bonita = get_authenticated_bonita_service()
+    case_id = stage_service.get_case_id_by_stage(stage)
+
+    # Completa la tarea en Bonita
+    bonita.completar_tarea(case_id)
+
+    return jsonify({"message": "La etapa ha pasado a finalizada exitosamente."}), 200

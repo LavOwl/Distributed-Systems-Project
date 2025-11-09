@@ -33,3 +33,13 @@ def get_case_id_by_stage(stage):
     if not stage or not stage.project:
         return None
     return stage.project.case_id
+
+
+def finish_stage(stage_id: int):
+    """
+    Finaliza una etapa específica según su ID (de IN_PROGRESS a FINISHED).
+    """
+    stage = services.get_in_progress_stage_by_id(stage_id)
+    if not stage:
+        return None
+    return services.finish_stage(stage)

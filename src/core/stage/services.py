@@ -28,7 +28,7 @@ def crear_stage(id_project, coverage_request, requires_contribution, name, descr
 
 def get_stages_by_project_id(project_id: int):
     """
-    Obtiene las etapas asociadas a un proyecto.
+    Obtiene las etapas pendientes asociadas a un proyecto.
     """
     stages = Stage.query.filter_by(id_project=project_id, status=StatusStage.PENDING, requires_contribution = True).all()
     return stages
@@ -57,8 +57,28 @@ def cover_stage(stage: Stage):
     try:
         stage.status = StatusStage.IN_PROGRESS
         db.session.commit()
-    except SQLAlchemyError as error:   
-        # Manejo del error en caso que la base de datos falle.
+    except SQLAlchemyError as error:
         db.session.rollback()
         raise Exception(f"Error al registrar el stage.")
+    return stage
+
+
+def get_in_progress_stage_by_id(stage_id: int):
+    """
+    Retorna una etapa por su ID, solo si está en progreso.
+    """
+    stage = Stage.query.filter_by(id=stage_id, status=StatusStage.IN_PROGRESS).first()
+    return stage
+
+
+def finish_stage(stage: Stage):
+    """
+    Marca una etapa como finalizada (de IN_PROGRESS a FINISHED).
+    """
+    try:
+        stage.status = StatusStage.FINISHED
+        db.session.commit()
+    except SQLAlchemyError as error:
+        db.session.rollback()
+        raise Exception("Error al finalizar la etapa.")
     return stage
