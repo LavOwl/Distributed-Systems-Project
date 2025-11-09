@@ -113,6 +113,34 @@ def add_observation(project_id: int):
     return jsonify({"message": f"Observación agregada correctamente al proyecto."}), 201
 
 
+@project_bp.post("/v1/finalizar_revision")
+@require_bonita_auth("consejo_directivo")
+def finalizar_revision():
+    """
+    Finaliza la tarea de revisión del Consejo Directivo en Bonita.
+    Solo completa la tarea activa y permite avanzar al siguiente paso.
+    (1) No recibe nada.
+    (2) Devuelve:
+        1. 200 - message: revisión finalizada correctamente.
+        2. 401 - error: sesión expirada o inválida.
+        3. 403 - error: el usuario no tiene permisos para acceder.
+        4. 500 - error: ocurrió un error inesperado.
+    """
+    try:
+        # Obtención del servicio Bonita autenticado.
+        bonita = get_authenticated_bonita_service()
+
+        # Obtiene el case_id actual.
+        case_id = observation_service.get_current_case()
+
+        # Completa la tarea actual del consejo directivo.
+        bonita.completar_tarea("consejo_directivo", case_id)
+
+        return jsonify({"message": "Revisión finalizada correctamente."}), 200
+    except Exception as e:
+        return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
+
+
 @project_bp.get("/v1/get_observations_by_user")
 @require_bonita_auth("ong_originante")
 def get_observations_by_user():
