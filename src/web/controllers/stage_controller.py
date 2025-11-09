@@ -82,16 +82,19 @@ def finish_stage_by_id(stage_id: int):
         2. 400 - error: no se pudo finalizar la etapa. 
         3. 401 - error: sesión expirada o inválida.
         4. 403 - error: el usuario no tiene permisos para acceder.
+        5. 409 - error: el proyecto aún no ha comenzado.
     """
-    stage = stage_service.finish_stage(stage_id)
-    if not stage:
-        return jsonify({"error": "No se pudo finalizar la etapa. Verifique su estado actual."}), 400
+    if(stage_service.project_has_started(stage_id)):
+        stage = stage_service.finish_stage(stage_id)
+        if not stage:
+            return jsonify({"error": "No se pudo finalizar la etapa. Verifique su estado actual."}), 400
 
-    # Obtención de la sesión Bonita autenticada
-    bonita = get_authenticated_bonita_service()
-    case_id = stage_service.get_case_id_by_stage(stage)
+        # Obtención de la sesión Bonita autenticada
+        bonita = get_authenticated_bonita_service()
+        case_id = stage_service.get_case_id_by_stage(stage)
 
-    # Completa la tarea en Bonita
-    bonita.completar_tarea(case_id)
+        # Completa la tarea en Bonita
+        bonita.completar_tarea(case_id)
 
-    return jsonify({"message": "La etapa ha pasado a finalizada exitosamente."}), 200
+        return jsonify({"message": "La etapa ha pasado a finalizada exitosamente."}), 200
+    return jsonify({"error": "El proyecto aún no ha comenzado."}), 409

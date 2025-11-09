@@ -15,6 +15,7 @@ class Observation(db.Model):
     """
     __tablename__ = "observations"
     id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, nullable=True)
     id_project = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)

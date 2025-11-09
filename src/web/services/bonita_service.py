@@ -138,6 +138,27 @@ class BonitaService:
         return response.json()['caseId']
 
 
+    def obtener_variable_de_caso(self, case_id, variable_name):
+        """
+        Obtiene el valor actual de una variable de caso en Bonita.
+        """
+        url = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{variable_name}"
+        headers = {
+            'X-Bonita-API-Token': self.csrf_token
+        }
+        response = self.session.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            try:
+                return int(data.get("value"))
+            except (ValueError, TypeError):
+                return data.get("value")
+        elif response.status_code == 404:
+            return 0
+        else:
+            response.raise_for_status()
+
+
     def establecer_variable_al_caso(self, case_id, variable_name, value, tipo="java.lang.Integer"):
         """
         Establece o actualiza el valor a una variable del caso.

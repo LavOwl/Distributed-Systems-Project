@@ -1,6 +1,7 @@
 from src.web.handlers.helpers import get_authenticated_bonita_service
 from src.web.handlers.authentication import require_bonita_auth
 from flask import Blueprint, jsonify, request, g
+from src.web.services import observation_service
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
@@ -59,6 +60,16 @@ def get_projects_with_stages():
         2. 401 - error: sesión expirada o inválida.
         3. 403 - error: el usuario no tiene permisos para acceder.
     """
+    # Obtención de las cookies de la sesión actual.
+    bonita = get_authenticated_bonita_service()
+
+    # Inicia el proceso de control
+    case_id = bonita.iniciar_proceso("proceso_de_control")
+
+    # Guarda el case_id asociado al proceso en una variable global separada.
+    observation_service.set_current_case(case_id)
+    
+    # Busca los proyectos y los retorna.
     result = project_service.get_projects_with_stages()
     return jsonify(result)
 
@@ -83,7 +94,18 @@ def add_observation(project_id: int):
     """
     data = request.get_json()
     try:
-        project_service.add_observation(project_id, data)
+        # Obtención de las cookies de la sesión actual.
+        bonita = get_authenticated_bonita_service()
+
+        # Obtiene el case_id actual.
+        case_id = observation_service.get_current_case()
+        
+        # Incrementa la variable de cantidad de observaciones en Bonita.
+        contador_actual = bonita.obtener_variable_de_caso(case_id, "contador_observaciones")
+        bonita.establecer_variable_al_caso(case_id, "contador_observaciones", contador_actual + 1, "java.lang.Integer")
+
+        # Crea la observación, almacenando el case_id en ella.
+        project_service.add_observation(case_id, project_id, data)
     except BadRequest as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -130,6 +152,14 @@ def upload_corrected_observation(observation_id: int):
     observation = project_service.upload_corrected_observation(observation_id)
     if not observation:
         return jsonify({"message": f"No se encontró la observación."}), 404
+
+    # Obtenemos el case_id de la observación.
+    case_id = observation.case_id
+
+    # Completamos la tarea en Bonita.
+    bonita = get_authenticated_bonita_service()
+    bonita.completar_tarea(case_id)
+
     return jsonify({"message": f"La observación ha sido marcada como completada."}), 200
 
 

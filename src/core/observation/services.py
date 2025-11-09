@@ -3,11 +3,12 @@ from src.core.observation.model import Status
 from src.core.project.model import Project
 from src.core.database import db
 
-def add_observation(project_id: int, name: str, description: str, status):
+def add_observation(case_id: int, project_id: int, name: str, description: str, status):
     """
     Crea una nueva observación asociada a un proyecto y la guarda en la base de datos.
     """
     new_observation = Observation(
+        case_id=case_id,
         id_project=project_id,
         name=name,
         description=description,

@@ -39,7 +39,7 @@ def get_projects_with_stages():
     ]
 
 
-def add_observation(project_id: int, data: dict):
+def add_observation(case_id: int, project_id: int, data: dict):
     """
     Valida los datos y crea una observación asociada a un proyecto.
     """
@@ -48,6 +48,7 @@ def add_observation(project_id: int, data: dict):
     except Exception as e:
         raise BadRequest(str(e))
     observation = core_observation_services.add_observation(
+        case_id=case_id,
         project_id=project_id,
         name=validated.name,
         description=validated.description,

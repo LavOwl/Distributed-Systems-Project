@@ -82,3 +82,34 @@ def finish_stage(stage: Stage):
         db.session.rollback()
         raise Exception("Error al finalizar la etapa.")
     return stage
+
+
+def project_has_started(stage_id: int) -> bool:
+    """
+    Verifica si el proyecto al que pertenece un stage ya comenzó.
+    Para que un proyecto se considere "comenzado", todas sus etapas que
+    requieren colaboración deben estar en estado 'IN_PROGRESS'.
+    """
+    try:
+        stage = Stage.query.get(stage_id)
+        if not stage:
+            raise Exception(f"No se encontró el stage con id {stage_id}.")
+        project = stage.project
+        if not project:
+            raise Exception(f"El stage con id {stage_id} no está asociado a ningún proyecto.")
+
+        # Obtener todas las etapas que requieren colaboración.
+        collaborative_stages = [
+            s for s in project.stages if s.requires_contribution
+        ]
+
+        # Si no hay etapas colaborativas, se considera "comenzado".
+        if not collaborative_stages:
+            return True
+
+        # Verificar si todas están en IN_PROGRESS.
+        all_in_progress = all(s.status == "IN_PROGRESS" for s in collaborative_stages)
+        return all_in_progress
+    except SQLAlchemyError as error:
+        db.session.rollback()
+        raise Exception(f"Error al verificar si el proyecto comenzó: {error}")

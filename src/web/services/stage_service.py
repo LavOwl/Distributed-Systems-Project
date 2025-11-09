@@ -43,3 +43,7 @@ def finish_stage(stage_id: int):
     if not stage:
         return None
     return services.finish_stage(stage)
+
+
+def project_has_started(stage_id: int) -> bool:
+    return services.project_has_started(stage_id)
