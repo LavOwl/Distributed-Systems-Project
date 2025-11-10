@@ -107,9 +107,9 @@ def project_has_started(stage_id: int) -> bool:
         if not collaborative_stages:
             return True
 
-        # Verificar si todas están en IN_PROGRESS.
-        all_in_progress = all(s.status == "IN_PROGRESS" for s in collaborative_stages)
-        return all_in_progress
+        # Verificar si todas están en un estado diferente a PENDING.
+        all_not_pending = all(s.status != StatusStage.PENDING for s in collaborative_stages)
+        return all_not_pending
     except SQLAlchemyError as error:
         db.session.rollback()
         raise Exception(f"Error al verificar si el proyecto comenzó: {error}")

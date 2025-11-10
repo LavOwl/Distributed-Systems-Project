@@ -63,11 +63,14 @@ def get_projects_with_stages():
     # Obtención de las cookies de la sesión actual.
     bonita = get_authenticated_bonita_service()
 
-    # Inicia el proceso de control
+    # Inicia el proceso de control.
     case_id = bonita.iniciar_proceso("proceso_de_control")
 
     # Guarda el case_id asociado al proceso en una variable global separada.
     observation_service.set_current_case(case_id)
+
+    # Completa la tarea actual del consejo directivo.
+    bonita.completar_tarea(case_id)
     
     # Busca los proyectos y los retorna.
     result = project_service.get_projects_with_stages()
@@ -134,7 +137,7 @@ def finalizar_revision():
         case_id = observation_service.get_current_case()
 
         # Completa la tarea actual del consejo directivo.
-        bonita.completar_tarea("consejo_directivo", case_id)
+        bonita.completar_tarea(case_id)
 
         return jsonify({"message": "Revisión finalizada correctamente."}), 200
     except Exception as e:
