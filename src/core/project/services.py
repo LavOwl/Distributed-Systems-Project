@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from src.core.database import db
 
-def create_project(user_id, case_id, name, description, stages) -> Project:
+def create_project(user_id, name, description, stages) -> Project:
     """
     Creación de un proyecto y de sus stages asociados.
     """
@@ -12,7 +12,6 @@ def create_project(user_id, case_id, name, description, stages) -> Project:
         # Seteo de variables.
         project = Project(
             user_id=user_id,
-            case_id=case_id,
             name=name,
             description=description
         )

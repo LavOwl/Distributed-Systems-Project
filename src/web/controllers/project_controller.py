@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request, g
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
-
+import json
 project_bp = Blueprint("project", __name__)
 
 
@@ -47,15 +47,27 @@ def create_project():
 
         # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
+          # Creación del proyecto.
+        project = project_service.create_project_from_payload(data, user_id)
         #inicio el proceso en Bonita
-        case_id = bonita.iniciar_proceso("proceso_de_ejecucion")
-        # Creación del proyecto.
-        project_service.create_project_from_payload(data, user_id, case_id)
+        stages_required_contribution = project_service.stages_require_contribution(data)
+        stages_json = json.dumps(stages_required_contribution, separators=(',', ':'))
+        case_id = bonita.iniciar_proceso_con_datos(
+            "proceso_de_ejecucion",
+            {
+                "stages": stages_json, "nombre_proyecto": project.name, "descripcion_proyecto": project.description
+            }
+        )
+        project_service.link_to_bonita_case(project, case_id)
         bonita.completar_tarea(case_id)
         
-        return jsonify({"message": "Proyecto creado correctamente."}), 201
+        
+        
+        return jsonify({"stages": stages_required_contribution}), 200
     except ValidationError as e:
-        return jsonify({"errors": e.errors()}), 400
+            return jsonify({"errors": e.errors()}), 400
+    #     return jsonify({"message": "Proyecto creado correctamente."}), 201
+    # 
 
 
 @project_bp.get("/v1/get_projects_with_stages")
@@ -142,3 +154,21 @@ def avanzar():
     bonita.completar_tarea(case_id)
 
     return jsonify({"message": "Tarea avanzada correctamente."}), 200
+
+
+@project_bp.get("/v1/debug/case-variables/<case_id>")
+@require_bonita_auth("ong_originante")
+def get_case_variables(case_id):
+    """
+    Endpoint de debug: muestra las variables de un caso de Bonita.
+    """
+    try:
+        bonita = get_authenticated_bonita_service()
+        variables = bonita.obtener_variables_caso(case_id)
+        
+        return jsonify({
+            "case_id": case_id,
+            "variables": variables
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

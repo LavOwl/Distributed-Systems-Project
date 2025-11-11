@@ -2,9 +2,10 @@ from src.core.project.services import create_project, set_case_id, get_projects_
 from src.core.observation.services import create_observation, mark_observation_as_resolved
 from src.core.validators.observation import ObservationValidator
 from src.core.validators.project import ProjectValidator
+from src.core.stage import services as stage_services
 from werkzeug.exceptions import BadRequest
 
-def create_project_from_payload(payload, user_id, case_id):
+def create_project_from_payload(payload, user_id):
     """
     Valida el payload y crea el proyecto con sus stages, y retorna el proyecto creado o lanza ValidationError.
     """
@@ -14,8 +15,18 @@ def create_project_from_payload(payload, user_id, case_id):
     description = project_in.description or ""
     stages = [stage.model_dump() for stage in project_in.stages]
 
-    return create_project(user_id,case_id, name, description, stages)
+    return create_project(user_id,name, description, stages)
 
+def stages_require_contribution(payload):
+    stages = payload.get("stages", [])
+    stages_requiring_contribution = []
+    for stage in stages:
+        if stage.get("requires_contribution", True):
+            stages_requiring_contribution.append(stage)
+    return stages_requiring_contribution
+    
+    
+    
 
 def link_to_bonita_case(project, case_id):
     """

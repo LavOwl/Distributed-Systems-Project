@@ -63,4 +63,3 @@ def cover_stage(stage: Stage):
     return stage
 
     
-    
