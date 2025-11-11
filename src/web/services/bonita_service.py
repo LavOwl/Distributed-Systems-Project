@@ -137,76 +137,76 @@ class BonitaService:
         # Devuelve un JSON con la respuesta.
         return response.json()['caseId']
 
-  
-def iniciar_proceso_con_datos(self, process_name, variables=None):
-    """
-    Inicia un proceso en Bonita y actualiza sus variables.
     
-    Args:
-        process_name (str): Nombre del proceso en Bonita
-        variables (dict): Variables a inicializar {nombre: valor}
-    
-    Returns:
-        str: case_id del proceso iniciado
-    """
-    # 1. Obtener ID del proceso
-    process_id = self.obtener_id_proceso(process_name)
-    if not process_id:
-        raise Exception(f"No se encontró el proceso '{process_name}'")
-    
-    # 2. Iniciar el proceso
-    url = f"{self.base_url}/API/bpm/process/{process_id}/instantiation"
-    headers = {
-        'content-type': 'application/json',
-        'X-Bonita-API-Token': self.csrf_token
-    }
-    
-    response = self.session.post(url, headers=headers, json={})
-    response.raise_for_status()
-    
-    case_id = response.json()['caseId']
-    
-    # 3. Actualizar variables si existen
-    if variables:
-        self.actualizar_variables_caso(case_id, variables)
-    
-    return case_id
-
-
-def actualizar_variables_caso(self, case_id, variables):
-    """
-    Actualiza las variables de un caso en Bonita.
-    
-    Args:
-        case_id (str): ID del caso
-        variables (dict): Diccionario con las variables a actualizar {nombre: valor}
-    """
-    headers = {
-        'content-type': 'application/json',
-        'X-Bonita-API-Token': self.csrf_token
-    }
-    
-    for var_name, var_value in variables.items():
-        url_variable = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{var_name}"
+    def iniciar_proceso_con_datos(self, process_name, variables=None):
+        """
+        Inicia un proceso en Bonita y actualiza sus variables.
         
-        # Determinar tipo de Bonita según tipo de Python
-        if isinstance(var_value, bool):
-            bonita_type = "java.lang.Boolean"
-        elif isinstance(var_value, int):
-            bonita_type = "java.lang.Integer"
-        else:
-            bonita_type = "java.lang.String"
-            var_value = str(var_value)
+        Args:
+            process_name (str): Nombre del proceso en Bonita
+            variables (dict): Variables a inicializar {nombre: valor}
         
-        payload = {
-            "type": bonita_type,
-            "value": var_value
+        Returns:
+            str: case_id del proceso iniciado
+        """
+        # 1. Obtener ID del proceso
+        process_id = self.obtener_id_proceso(process_name)
+        if not process_id:
+            raise Exception(f"No se encontró el proceso '{process_name}'")
+        
+        # 2. Iniciar el proceso
+        url = f"{self.base_url}/API/bpm/process/{process_id}/instantiation"
+        headers = {
+            'content-type': 'application/json',
+            'X-Bonita-API-Token': self.csrf_token
         }
         
-        # Enviar PUT request
-        var_response = self.session.put(url_variable, headers=headers, json=payload)
-        var_response.raise_for_status()
+        response = self.session.post(url, headers=headers, json={})
+        response.raise_for_status()
         
+        case_id = response.json()['caseId']
+        
+        # 3. Actualizar variables si existen
+        if variables:
+            self.actualizar_variables_caso(case_id, variables)
+        
+        return case_id
+
+
+    def actualizar_variables_caso(self, case_id, variables):
+        """
+        Actualiza las variables de un caso en Bonita.
+        
+        Args:
+            case_id (str): ID del caso
+            variables (dict): Diccionario con las variables a actualizar {nombre: valor}
+        """
+        headers = {
+            'content-type': 'application/json',
+            'X-Bonita-API-Token': self.csrf_token
+        }
+        
+        for var_name, var_value in variables.items():
+            url_variable = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{var_name}"
+            
+            # Determinar tipo de Bonita según tipo de Python
+            if isinstance(var_value, bool):
+                bonita_type = "java.lang.Boolean"
+            elif isinstance(var_value, int):
+                bonita_type = "java.lang.Integer"
+            else:
+                bonita_type = "java.lang.String"
+                var_value = str(var_value)
+            
+            payload = {
+                "type": bonita_type,
+                "value": var_value
+            }
+            
+            # Enviar PUT request
+            var_response = self.session.put(url_variable, headers=headers, json=payload)
+            var_response.raise_for_status()
+            
         
     def obtener_tarea_pendiente(self, case_id):
         """
