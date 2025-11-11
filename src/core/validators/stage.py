@@ -8,6 +8,7 @@ class StageSchema(BaseModel):
     Esquema de validación de datos con Pydantic.
     """
     name: str = Field(..., max_length=100)
+    description: Optional[str] = Field(None, max_length=255)
     start_date: datetime
     end_date: Optional[datetime] = None
     coverage_request: CoverageRequest

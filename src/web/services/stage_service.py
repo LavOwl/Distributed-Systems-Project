@@ -22,5 +22,28 @@ def cover_stage(stage_id: int):
     """
     stage = services.get_pending_stage_by_id(stage_id)
     if not stage:
-        return None        
+        return None
     return services.cover_stage(stage)
+
+
+def get_case_id_by_stage(stage):
+    """
+    Obtiene el case_id del proyecto al que pertenece una etapa.
+    """
+    if not stage or not stage.project:
+        return None
+    return stage.project.case_id
+
+
+def finish_stage(stage_id: int):
+    """
+    Finaliza una etapa específica según su ID (de IN_PROGRESS a FINISHED).
+    """
+    stage = services.get_in_progress_stage_by_id(stage_id)
+    if not stage:
+        return None
+    return services.finish_stage(stage)
+
+
+def project_has_started(stage_id: int) -> bool:
+    return services.project_has_started(stage_id)

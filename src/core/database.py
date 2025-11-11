@@ -1,8 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
-from src.core.observation.model import Observation
-from src.core.project.model import Project
-from src.core.stage.model import Stage
 
 def init_app(app):
     """

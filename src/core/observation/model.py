@@ -15,8 +15,19 @@ class Observation(db.Model):
     """
     __tablename__ = "observations"
     id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, nullable=True)
     id_project = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
     status = db.Column(Enum(Status), nullable=False, default=Status.PENDING)
     project = db.relationship("Project", back_populates="observations")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "project_id": self.id_project,
+            "project_name": self.project.name if self.project else None,
+            "name": self.name,
+            "description": self.description,
+            "status": self.status.value
+        }
