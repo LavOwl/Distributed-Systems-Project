@@ -34,14 +34,21 @@ def create_project():
         project = project_service.create_project_from_payload(data, user_id)
         #inicio el proceso en Bonita
         stages_required_contribution = project_service.stages_require_contribution(data)
+        
+        # ✅ Agregar id_project a cada stage
+        for stage in stages_required_contribution:
+            stage["id_project"] = project.id
+        
         stages_json = json.dumps(stages_required_contribution, separators=(',', ':'))
+        
+ 
         # Seteo de la variable de número de etapas al proceso de Bonita.
         numero_etapas = project_service.contar_etapas_colaborativas(data)
         
         case_id = bonita.iniciar_proceso_con_datos(
             "proceso_de_ejecucion",
             {
-                "stages": stages_json, "nombre_proyecto": project.name, "descripcion_proyecto": project.description, "numero_etapas": numero_etapas
+                "stages": stages_json, "id_project": project.id, "nombre_proyecto": project.name, "descripcion_proyecto": project.description, "numero_etapas": numero_etapas
             }
         )
         project_service.link_to_bonita_case(project, case_id)
