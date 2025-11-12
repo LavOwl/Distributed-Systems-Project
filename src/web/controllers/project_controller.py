@@ -59,7 +59,7 @@ def create_project():
         bonita.completar_tarea(case_id)
         return jsonify({"message": "Proyecto creado correctamente."}), 201
     except ValidationError as e:
-        return jsonify({"errors": e.errors()}), 400
+        return jsonify({"errors": [err["msg"] for err in e.errors()]}), 400
 
 
 @project_bp.get("/v1/list_observations_by_user")

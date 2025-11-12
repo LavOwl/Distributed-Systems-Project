@@ -139,23 +139,20 @@ endblock %} {% block content %}
       const description = document.getElementById("description").value;
 
       const stageBlocks = stagesContainer.children;
-      const stages = Array.from(stageBlocks).map((div) => {
-        return {
-          name: div.querySelector('[name="stage_name"]').value,
-          description: div.querySelector('[name="stage_description"]').value,
-          start_date: div.querySelector('[name="stage_start_date"]').value,
-          end_date: div.querySelector('[name="stage_end_date"]').value || null,
-          coverage_request: div.querySelector('[name="coverage_request"]')
-            .value,
-          requires_contribution: div.querySelector(
-            '[name="requires_contribution"]'
-          ).checked,
-        };
-      });
+      const stages = Array.from(stageBlocks).map((div) => ({
+        name: div.querySelector('[name="stage_name"]').value,
+        description: div.querySelector('[name="stage_description"]').value,
+        start_date: div.querySelector('[name="stage_start_date"]').value,
+        end_date: div.querySelector('[name="stage_end_date"]').value || null,
+        coverage_request: div.querySelector('[name="coverage_request"]').value,
+        requires_contribution: div.querySelector(
+          '[name="requires_contribution"]'
+        ).checked,
+      }));
 
       const payload = { name, description, stages };
 
-      const response = await fetch("/v1/create_project", {
+      const response = await fetch("/project/v1/create_project", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -163,21 +160,37 @@ endblock %} {% block content %}
 
       const alertContainer = document.getElementById("alertContainer");
       alertContainer.innerHTML = "";
+      const data = await response.json();
 
       if (response.ok) {
-        const result = await response.json();
         alertContainer.innerHTML = `
-        <div class="alert alert-success text-center">${result.message}</div>
-      `;
+          <div class="alert alert-success text-center">${data.message}</div>
+        `;
         e.target.reset();
         stagesContainer.innerHTML = "";
-      } else {
-        const error = await response.json();
+      } else if (data.errors && Array.isArray(data.errors)) {
+        const listItems = data.errors
+          .map((err) => {
+            // Limpia el prefijo tipo "Value error," si existe
+            return `<li>${err.replace(/^Value error,\s*/i, "")}</li>`;
+          })
+          .join("");
         alertContainer.innerHTML = `
-        <div class="alert alert-danger text-center">
-          ${error.error || "Ocurrió un error al crear el proyecto."}
+        <div class="alert alert-danger">
+          <strong>Revisá los siguientes campos:</strong>
+          <ul class="mb-0 mt-2">${listItems}</ul>
         </div>
-      `;
+        `;
+      } else {
+        alertContainer.innerHTML = `
+          <div class="alert alert-danger text-center">
+            ${
+              data.error ||
+              data.message ||
+              "Ocurrió un error al crear el proyecto."
+            }
+          </div>
+        `;
       }
     });
 </script>

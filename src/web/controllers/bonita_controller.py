@@ -70,7 +70,7 @@ def logout():
     (1) Recibe:
         1. Nada.
     (2) Devuelve:
-        2. Renderiza template /auth/login.html. 
+        2. Renderiza template home.html. 
     """
     session.clear()
-    return redirect(url_for("bonita.login_form"))
+    return render_template("home.html")
