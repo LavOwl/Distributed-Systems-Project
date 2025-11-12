@@ -1,0 +1,184 @@
+{% extends "base.html" %} {% block title %}Nuevo Proyecto — ProjectPlanning{%
+endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-4 text-center fw-semibold">Crear nuevo proyecto</h2>
+
+        <form id="createProjectForm">
+          <!-- Datos del proyecto -->
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre del proyecto</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="Ej: Programa de apoyo escolar"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="description" class="form-label">Descripción</label>
+            <textarea
+              class="form-control"
+              id="description"
+              name="description"
+              rows="3"
+              placeholder="Breve descripción del proyecto"
+              required
+            ></textarea>
+          </div>
+
+          <hr class="my-4" />
+          <h5 class="fw-semibold text-center mb-3">Etapas del proyecto</h5>
+
+          <div id="stagesContainer"></div>
+
+          <div class="d-grid mb-3">
+            <button
+              type="button"
+              id="addStageBtn"
+              class="btn btn-outline-primary"
+            >
+              + Agregar etapa
+            </button>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              Crear proyecto
+            </button>
+          </div>
+        </form>
+
+        <div id="alertContainer" class="mt-4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const stagesContainer = document.getElementById("stagesContainer");
+  const addStageBtn = document.getElementById("addStageBtn");
+
+  function createStageBlock(index) {
+    const stageDiv = document.createElement("div");
+    stageDiv.classList.add("border", "rounded-3", "p-3", "mb-3", "bg-light");
+    stageDiv.innerHTML = `
+      <h6 class="fw-semibold mb-3">Etapa ${index + 1}</h6>
+
+      <div class="mb-2">
+        <label class="form-label">Nombre</label>
+        <input type="text" class="form-control" name="stage_name" required />
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" name="stage_description" rows="2" required></textarea>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <label class="form-label">Fecha de inicio</label>
+          <input type="date" class="form-control" name="stage_start_date" required />
+        </div>
+        <div class="col-md-6 mb-2">
+          <label class="form-label">Fecha de fin</label>
+          <input type="date" class="form-control" name="stage_end_date" />
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Tipo de cobertura</label>
+        <select class="form-select" name="coverage_request" required>
+          <option value="" selected disabled>Seleccione...</option>
+          <option value="DINERO">Dinero</option>
+          <option value="MATERIALES">Materiales</option>
+          <option value="MANO_DE_OBRA">Mano de obra</option>
+        </select>
+      </div>
+
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="requires_contribution" />
+        <label class="form-check-label">Requiere contribución</label>
+      </div>
+
+      <div class="text-end">
+        <button type="button" class="btn btn-sm btn-outline-danger removeStageBtn">
+          Eliminar etapa
+        </button>
+      </div>
+    `;
+
+    stageDiv.querySelector(".removeStageBtn").addEventListener("click", () => {
+      stageDiv.remove();
+      updateStageTitles();
+    });
+
+    stagesContainer.appendChild(stageDiv);
+  }
+
+  function updateStageTitles() {
+    const stages = stagesContainer.querySelectorAll("h6");
+    stages.forEach((title, i) => (title.textContent = `Etapa ${i + 1}`));
+  }
+
+  addStageBtn.addEventListener("click", () => {
+    createStageBlock(stagesContainer.children.length);
+  });
+
+  document
+    .getElementById("createProjectForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const description = document.getElementById("description").value;
+
+      const stageBlocks = stagesContainer.children;
+      const stages = Array.from(stageBlocks).map((div) => {
+        return {
+          name: div.querySelector('[name="stage_name"]').value,
+          description: div.querySelector('[name="stage_description"]').value,
+          start_date: div.querySelector('[name="stage_start_date"]').value,
+          end_date: div.querySelector('[name="stage_end_date"]').value || null,
+          coverage_request: div.querySelector('[name="coverage_request"]')
+            .value,
+          requires_contribution: div.querySelector(
+            '[name="requires_contribution"]'
+          ).checked,
+        };
+      });
+
+      const payload = { name, description, stages };
+
+      const response = await fetch("/v1/create_project", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const alertContainer = document.getElementById("alertContainer");
+      alertContainer.innerHTML = "";
+
+      if (response.ok) {
+        const result = await response.json();
+        alertContainer.innerHTML = `
+        <div class="alert alert-success text-center">${result.message}</div>
+      `;
+        e.target.reset();
+        stagesContainer.innerHTML = "";
+      } else {
+        const error = await response.json();
+        alertContainer.innerHTML = `
+        <div class="alert alert-danger text-center">
+          ${error.error || "Ocurrió un error al crear el proyecto."}
+        </div>
+      `;
+      }
+    });
+</script>
+{% endblock %}

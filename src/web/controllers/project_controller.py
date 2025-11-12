@@ -1,6 +1,6 @@
 from src.web.handlers.helpers import get_authenticated_bonita_service
+from flask import Blueprint, jsonify, request, g, render_template
 from src.web.handlers.authentication import require_bonita_auth
-from flask import Blueprint, jsonify, request, g
 from src.web.services import observation_service
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
@@ -8,27 +8,41 @@ from pydantic import ValidationError
 
 project_bp = Blueprint("project", __name__)
 
+@project_bp.get("/v1/create_project")
+@require_bonita_auth("ong_originante")
+def create_project_form():
+    """
+    Muestra el formulario de creación de proyecto.
+    (1) Recibe:
+        1. Nada.
+    (2) Devuelve:
+        2. Renderiza template /project/create_project.html.
+    """
+    return render_template("project/create_project.html")
+
+
 @project_bp.post("/v1/create_project")
 @require_bonita_auth("ong_originante")
 def create_project():
     """
     Crea un proyecto con los datos recibidos.
     (1) Recibe (JSON en el BODY):
-        1. name: string.
-        2. description: string.
+        1. name (proyecto): string.
+        2. description (proyecto): string.
+        3. name (etapa): string.
+        4. description (etapa): string.
+        5. start_date (etapa): date.
+        6. end_date (etapa): date.
+        7. coverage_request (etapa): enum.
+        8. requires_contribution (etapa): boolean.
     (2) Devuelve:
         1. 201 - message: proyecto creado correctamente.
         2. 401 - error: sesión expirada o inválida.
         3. 403 - error: el usuario no tiene permisos para acceder.
     """
     try:
-        # Obtener los datos del body.
         data = request.get_json()
-
-        # Obtención del user_id de la sesión actual.
         user_id = g.bonita_user["user_id"]
-
-        # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
 
         # Iniciación del proceso en Bonita.
@@ -43,10 +57,73 @@ def create_project():
 
         # Completar tarea en Bonita.
         bonita.completar_tarea(case_id)
-        
         return jsonify({"message": "Proyecto creado correctamente."}), 201
     except ValidationError as e:
         return jsonify({"errors": e.errors()}), 400
+
+
+@project_bp.get("/v1/list_observations_by_user")
+@require_bonita_auth("ong_originante")
+def list_observations_by_user():
+    """
+    Renderiza la página con el listado de observaciones del usuario autenticado.
+    (1) Recibe:
+        1. Nada.
+    (2) Devuelve:
+        1. Renderiza template /project/list_observations.html.
+    """
+    return render_template("project/list_observations.html")
+
+
+@project_bp.get("/v1/get_observations_by_user")
+@require_bonita_auth("ong_originante")
+def get_observations_by_user():
+    """
+    Lista todas las observaciones asociadas a los proyectos del usuario autenticado.
+    (1) Recibe:
+        1. Nada.
+    (2) Devuelve:
+        1. 200 - lista de observaciones del usuario.
+        2. 401 - error: sesión expirada o inválida.
+        3. 403 - error: el usuario no tiene permisos para acceder.
+        4. 404 - message: no se encontraron observaciones.
+        5. 500 - error: ocurrió un error inesperado.
+    """
+    try:
+        user_id = g.bonita_user["user_id"]
+        observations = project_service.get_observations_by_user(user_id)
+        if not observations:
+            return jsonify({"message": "No se encontraron observaciones asociadas a tus proyectos."}), 404
+        return jsonify(observations), 200
+    except Exception as e:
+        return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
+
+
+@project_bp.patch("/v1/upload_corrected_observation/<int:observation_id>")
+@require_bonita_auth("ong_originante")
+def upload_corrected_observation(observation_id: int):
+    """
+    Marcar una observación como completada a partir de su ID.
+    (1) Recibe (parámetro en la ruta):
+        1. observation_id: int.
+    (2) Devuelve:
+        1. 200 - message: la observación ha sido marcada como completada.
+        2. 404 - message: no se encontró la observación.
+        3. 401 - error: sesión expirada o inválida.
+        4. 403 - error: el usuario no tiene permisos para acceder.
+    """
+    observation = project_service.upload_corrected_observation(observation_id)
+    if not observation:
+        return jsonify({"message": f"No se encontró la observación."}), 404
+
+    # Obtenemos el case_id de la observación.
+    case_id = observation.case_id
+
+    # Completamos la tarea en Bonita.
+    bonita = get_authenticated_bonita_service()
+    bonita.completar_tarea(case_id)
+
+    return jsonify({"message": f"La observación ha sido marcada como completada."}), 200
 
 
 @project_bp.get("/v1/get_projects_with_stages")
@@ -142,74 +219,3 @@ def finalizar_revision():
         return jsonify({"message": "Revisión finalizada correctamente."}), 200
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
-
-
-@project_bp.get("/v1/get_observations_by_user")
-@require_bonita_auth("ong_originante")
-def get_observations_by_user():
-    """
-    Lista todas las observaciones asociadas a los proyectos del usuario autenticado.
-    (1) No recibe nada.
-    (2) Devuelve:
-        1. 200 - lista de observaciones del usuario.
-        2. 401 - error: sesión expirada o inválida.
-        3. 403 - error: el usuario no tiene permisos para acceder.
-        4. 404 - message: no se encontraron observaciones.
-        5. 500 - error: ocurrió un error inesperado.
-    """
-    try:
-        user_id = g.bonita_user["user_id"]
-        observations = project_service.get_observations_by_user(user_id)
-        if not observations:
-            return jsonify({"message": "No se encontraron observaciones asociadas a tus proyectos."}), 404
-        return jsonify(observations), 200
-    except Exception as e:
-        return jsonify({"error": f"Ocurrió un error inesperado: {str(e)}"}), 500
-
-
-@project_bp.patch("/v1/upload_corrected_observation/<int:observation_id>")
-@require_bonita_auth("ong_originante")
-def upload_corrected_observation(observation_id: int):
-    """
-    Marcar una observación como completada a partir de su ID.
-    (1) Recibe (parámetro en la ruta):
-        1. observation_id: int.
-    (2) Devuelve:
-        1. 200 - message: la observación ha sido marcada como completada.
-        2. 404 - message: no se encontró la observación.
-        3. 401 - error: sesión expirada o inválida.
-        4. 403 - error: el usuario no tiene permisos para acceder.
-    """
-    observation = project_service.upload_corrected_observation(observation_id)
-    if not observation:
-        return jsonify({"message": f"No se encontró la observación."}), 404
-
-    # Obtenemos el case_id de la observación.
-    case_id = observation.case_id
-
-    # Completamos la tarea en Bonita.
-    bonita = get_authenticated_bonita_service()
-    bonita.completar_tarea(case_id)
-
-    return jsonify({"message": f"La observación ha sido marcada como completada."}), 200
-
-
-@project_bp.get("/v1/siguiente")
-@require_bonita_auth("ong_originante")
-def avanzar():
-    """
-    Avanza la tarea actual en Bonita para el proyecto asociado al usuario.
-    (1) No recibe nada.
-    (2) Devuelve:
-        1. 200 - message: tarea avanzada correctamente.
-        2. 401 - error: sesión expirada o inválida.
-        3. 403 - error: el usuario no tiene permisos para acceder.
-    """
-    # Obtención de las cookies de la sesión actual.
-    bonita = get_authenticated_bonita_service()
-    case_id = request.get_json().get("case_id")
-
-    # Avance de la tarea en Bonita.
-    bonita.completar_tarea(case_id)
-
-    return jsonify({"message": "Tarea avanzada correctamente."}), 200

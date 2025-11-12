@@ -21,12 +21,14 @@ def add_observation(case_id: int, project_id: int, name: str, description: str, 
 
 def get_observations_by_user(user_id: int):
     """
-    Obtiene todas las observaciones asociadas a los proyectos creados por un usuario.
+    Obtiene todas las observaciones con estado PENDING
+    asociadas a los proyectos creados por un usuario.
     """
     observations = (
         Observation.query
         .join(Project)
         .filter(Project.user_id == user_id)
+        .filter(Observation.status == Status.PENDING)
         .all()
     )
     return observations
