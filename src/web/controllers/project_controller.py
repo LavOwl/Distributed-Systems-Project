@@ -69,7 +69,7 @@ def create_project():
 
 
 @project_bp.get("/v1/get_projects_with_stages")
-@require_bonita_auth("consejo_Directivo")
+@require_bonita_auth("consejo_directivo")
 def get_projects_with_stages():
     """
     Devuelve todos los proyectos con todas sus etapas.
@@ -97,7 +97,7 @@ def get_projects_with_stages():
 
 
 @project_bp.post("/v1/add_observation/<int:project_id>")
-@require_bonita_auth("consejo_Directivo")
+@require_bonita_auth("consejo_directivo")
 def add_observation(project_id: int):
     """
     Agrega una observación a un proyecto a partir de su ID de proyecto.
@@ -136,7 +136,7 @@ def add_observation(project_id: int):
 
 
 @project_bp.post("/v1/finalizar_revision")
-@require_bonita_auth("consejo_Directivo")
+@require_bonita_auth("consejo_directivo")
 def finalizar_revision():
     """
     Finaliza la tarea de revisión del Consejo Directivo en Bonita.
