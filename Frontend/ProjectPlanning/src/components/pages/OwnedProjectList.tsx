@@ -43,6 +43,9 @@ export function OwnedProjectList(){
     try{
         const response = await apiService.finalizeStage(stage_id);
         setWarning({type: "SUCCESS", message: "Cierre de la contribución registrada!"})
+        setStages(stages => 
+          stages.filter(s => s.id !== stage_id)
+        );
     }
     catch (error: any) {
         if (error?.type === 'SESSION_EXPIRED') {

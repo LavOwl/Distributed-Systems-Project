@@ -43,6 +43,9 @@ export function ProjectListLenders(){
     try{
         const response = await apiService.confirmContribution(stage_id);
         setWarning({type: "SUCCESS", message: "Contribución registrada!"})
+        setStages(stages => 
+          stages.filter(s => s.id !== stage_id)
+        );
     }
     catch (error: any) {
         if (error?.type === 'SESSION_EXPIRED') {

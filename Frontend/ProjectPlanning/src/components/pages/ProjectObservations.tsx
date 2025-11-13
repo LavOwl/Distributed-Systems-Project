@@ -63,6 +63,9 @@ export function ProjectObservations() {
     try {
         const result = await apiService.finalizarObservacion(observation_id);
         setWarning({type:'SUCCESS', message:'Observacion resuelta exitosamente.'})
+        setObservations(observations => 
+          observations.filter(obs => obs.id !== observation_id)
+        );
     } catch (error: any) {
         if (error?.type === 'SESSION_EXPIRED') {
             setWarning({type:'FAILURE', message:'La sesión ha expirado. Por favor, inicie sesión nuevamente.'});
