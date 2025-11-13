@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Header } from "./components/layout/Header";
 import { Footer } from "./components/layout/Footer";
 import { Login } from "./components/pages/Login";
-import { ProjectList } from "./components/pages/ProjectList";
+import { ProjectListDirectives } from "./components/pages/ProjectListDirectives";
 import { ProjectForm } from "./components/pages/ProjectForm"
 import { ProjectObservations } from "./components/pages/ProjectObservations"
 import { OwnedProjectList } from "./components/pages/OwnedProjectList"
@@ -18,7 +18,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/projects" element={<ProjectList />} />
+                <Route path="/projects" element={<ProjectListDirectives />} />
                 <Route path="/projects/new" element={<ProjectForm />} />
                 <Route path="/projects/owned" element={<OwnedProjectList />} />
                 <Route path="/projects/:id/observations" element={<ProjectObservations />} />

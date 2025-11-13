@@ -52,7 +52,7 @@ export function ProjectForm(){
 
         try {
         const response = await fetch(
-            `http://127.0.0.1:5000/APIbonita/v1/iniciar_proyecto`,
+            `http://127.0.0.1:5000/project/v1/create_project`,
             {
             method: "POST",
             headers: { "Content-Type": "application/json" },

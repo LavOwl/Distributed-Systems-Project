@@ -64,7 +64,7 @@ def create_project():
 
 
 @project_bp.get("/v1/get_projects_with_stages")
-@require_bonita_auth("consejo_directivo")
+@require_bonita_auth("consejo_Directivo")
 def get_projects_with_stages():
     """
     Devuelve todos los proyectos con todas sus etapas.
@@ -92,7 +92,7 @@ def get_projects_with_stages():
 
 
 @project_bp.post("/v1/add_observation/<int:project_id>")
-@require_bonita_auth("consejo_directivo")
+@require_bonita_auth("consejo_Directivo")
 def add_observation(project_id: int):
     """
     Agrega una observación a un proyecto a partir de su ID de proyecto.
@@ -112,15 +112,18 @@ def add_observation(project_id: int):
     data = request.get_json()
     try:
         # Obtención de las cookies de la sesión actual.
+
         bonita = get_authenticated_bonita_service()
 
         # Obtiene el case_id actual.
         case_id = observation_service.get_current_case()
         
+
         # Incrementa la variable de cantidad de observaciones en Bonita.
         contador_actual = bonita.obtener_variable_de_caso(case_id, "contador_observaciones")
-        bonita.establecer_variable_al_caso(case_id, "contador_observaciones", contador_actual + 1, "java.lang.Integer")
 
+        bonita.establecer_variable_al_caso(case_id, "contador_observaciones", contador_actual + 1, "java.lang.Integer")
+        
         # Crea la observación, almacenando el case_id en ella.
         project_service.add_observation(case_id, project_id, data)
     except BadRequest as e:
@@ -131,7 +134,7 @@ def add_observation(project_id: int):
 
 
 @project_bp.post("/v1/finalizar_revision")
-@require_bonita_auth("consejo_directivo")
+@require_bonita_auth("consejo_Directivo")
 def finalizar_revision():
     """
     Finaliza la tarea de revisión del Consejo Directivo en Bonita.
