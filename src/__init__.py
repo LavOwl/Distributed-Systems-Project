@@ -22,7 +22,12 @@ def create_app() -> Flask:
 
     # Seteo de configuración.
     app.config.from_object(get_config())
-    CORS(app)
+    CORS(app, 
+     origins=["http://localhost:5173"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"]
+    )
+    
     db.init_app(app)
 
     # Almacenamiento de datos de la sesión del usuario.
@@ -49,5 +54,20 @@ def create_app() -> Flask:
     @app.route("/")
     def home():
         return render_template("home.html")
+    
+    @app.cli.command("debug-uri")
+    def debug_uri():
+        print("=== DATABASE URI DEBUG ===")
+        uri = app.config.get('SQLALCHEMY_DATABASE_URI')
+        print(f"URI: {uri}")
+        print(f"URI length: {len(uri)}")
+        print(f"URI as bytes: {uri.encode('utf-8')}")
+        
+        # Verificar caracteres problemáticos
+        for i, char in enumerate(uri):
+            try:
+                char.encode('utf-8')
+            except UnicodeEncodeError:
+                print(f"❌ Carácter problemático en posición {i}: '{char}' (hex: {ord(char):x})")
     
     return app

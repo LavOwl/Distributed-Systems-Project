@@ -137,52 +137,77 @@ class BonitaService:
         # Devuelve un JSON con la respuesta.
         return response.json()['caseId']
 
-
-    def obtener_variable_de_caso(self, case_id, variable_name):
+    
+    def iniciar_proceso_con_datos(self, process_name, variables=None):
         """
-        Obtiene el valor actual de una variable de caso en Bonita.
+        Inicia un proceso en Bonita y actualiza sus variables.
+        
+        Args:
+            process_name (str): Nombre del proceso en Bonita
+            variables (dict): Variables a inicializar {nombre: valor}
+        
+        Returns:
+            str: case_id del proceso iniciado
         """
-        url = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{variable_name}"
-        headers = {
-            'X-Bonita-API-Token': self.csrf_token
-        }
-        response = self.session.get(url, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            try:
-                return int(data.get("value"))
-            except (ValueError, TypeError):
-                return data.get("value")
-        elif response.status_code == 404:
-            return 0
-        else:
-            response.raise_for_status()
-
-
-    def establecer_variable_al_caso(self, case_id, variable_name, value, tipo="java.lang.Integer"):
-        """
-        Establece o actualiza el valor a una variable del caso.
-        """
-        url = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{variable_name}"
+        # 1. Obtener ID del proceso
+        process_id = self.obtener_id_proceso(process_name)
+        if not process_id:
+            raise Exception(f"No se encontró el proceso '{process_name}'")
+        
+        # 2. Iniciar el proceso
+        url = f"{self.base_url}/API/bpm/process/{process_id}/instantiation"
         headers = {
             'content-type': 'application/json',
             'X-Bonita-API-Token': self.csrf_token
         }
-        payload = {
-            "type": tipo,
-            "value": value
+        
+        response = self.session.post(url, headers=headers, json={})
+        response.raise_for_status()
+        
+        case_id = response.json()['caseId']
+        
+        # 3. Actualizar variables si existen
+        if variables:
+            self.actualizar_variables_caso(case_id, variables)
+        
+        return case_id
+
+
+    def actualizar_variables_caso(self, case_id, variables):
+        """
+        Actualiza las variables de un caso en Bonita.
+        
+        Args:
+            case_id (str): ID del caso
+            variables (dict): Diccionario con las variables a actualizar {nombre: valor}
+        """
+        headers = {
+            'content-type': 'application/json',
+            'X-Bonita-API-Token': self.csrf_token
         }
         
-        response = self.session.put(url, headers=headers, json=payload)
-        response.raise_for_status()
-        if response.text:
-            try:
-                return response.json()
-            except:
-                return {"success": True}
-        return {"success": True}
-
-
+        for var_name, var_value in variables.items():
+            url_variable = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{var_name}"
+            
+            # Determinar tipo de Bonita según tipo de Python
+            if isinstance(var_value, bool):
+                bonita_type = "java.lang.Boolean"
+            elif isinstance(var_value, int):
+                bonita_type = "java.lang.Integer"
+            else:
+                bonita_type = "java.lang.String"
+                var_value = str(var_value)
+            
+            payload = {
+                "type": bonita_type,
+                "value": var_value
+            }
+            
+            # Enviar PUT request
+            var_response = self.session.put(url_variable, headers=headers, json=payload)
+            var_response.raise_for_status()
+            
+        
     def obtener_tarea_pendiente(self, case_id):
         """
         Devuelve la primer tarea pendiente a partir de un case_id.
@@ -233,3 +258,82 @@ class BonitaService:
         if response.status_code == 204 or not response.text:
             return {"message": "Tarea completada correctamente"}
         return response.json()
+    
+    
+        
+        
+    def obtener_variables_caso(self, case_id):
+            """
+            Obtiene todas las variables de un caso específico.
+            
+            Args:
+                case_id (str): ID del caso
+            
+            Returns:
+                dict: Diccionario con las variables del caso
+            """
+            url = f"{self.base_url}/API/bpm/caseVariable"
+            params = {
+                'p': 0,
+                'c': 100,
+                'f': f'case_id={case_id}'
+            }
+            headers = {
+                'X-Bonita-API-Token': self.csrf_token
+            }
+            
+            response = self.session.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            
+            # Convertir lista de variables a diccionario
+            variables_dict = {}
+            for var in response.json():
+                variables_dict[var['name']] = var['value']
+            
+            return variables_dict
+        
+        
+        
+    #       def obtener_variable_de_caso(self, case_id, variable_name):
+    #     """
+    #     Obtiene el valor actual de una variable de caso en Bonita.
+    #     """
+    #     url = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{variable_name}"
+    #     headers = {
+    #         'X-Bonita-API-Token': self.csrf_token
+    #     }
+    #     response = self.session.get(url, headers=headers)
+    #     if response.status_code == 200:
+    #         data = response.json()
+    #         try:
+    #             return int(data.get("value"))
+    #         except (ValueError, TypeError):
+    #             return data.get("value")
+    #     elif response.status_code == 404:
+    #         return 0
+    #     else:
+    #         response.raise_for_status()
+
+
+    # def establecer_variable_al_caso(self, case_id, variable_name, value, tipo="java.lang.Integer"):
+    #     """
+    #     Establece o actualiza el valor a una variable del caso.
+    #     """
+    #     url = f"{self.base_url}/API/bpm/caseVariable/{case_id}/{variable_name}"
+    #     headers = {
+    #         'content-type': 'application/json',
+    #         'X-Bonita-API-Token': self.csrf_token
+    #     }
+    #     payload = {
+    #         "type": tipo,
+    #         "value": value
+    #     }
+        
+    #     response = self.session.put(url, headers=headers, json=payload)
+    #     response.raise_for_status()
+    #     if response.text:
+    #         try:
+    #             return response.json()
+    #         except:
+    #             return {"success": True}
+    #     return {"success": True}

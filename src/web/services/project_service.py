@@ -2,9 +2,10 @@ from src.core.observation import services as core_observation_services
 from src.core.validators.observation import ObservationValidator
 from src.core.project import services as core_project_services
 from src.core.validators.project import ProjectValidator
+from src.core.stage import services as stage_services
 from werkzeug.exceptions import BadRequest
 
-def create_project(payload, user_id, case_id):
+def create_project_from_payload(payload, user_id):
     """
     Valida el payload y crea el proyecto con sus stages, y retorna el proyecto creado o lanza ValidationError.
     """
@@ -12,8 +13,29 @@ def create_project(payload, user_id, case_id):
     name = project_in.name
     description = project_in.description or ""
     stages = [stage.model_dump() for stage in project_in.stages]
-    return core_project_services.create_project(user_id, case_id, name, description, stages)
 
+    return core_project_services.create_project(user_id,name, description, stages)
+
+def stages_require_contribution(stages):
+    stages_requiring_contribution = []
+
+    for stage in stages:
+        if stage.requires_contribution:
+            stage_dict = {
+                "id": stage.id,
+                "name": stage.name,
+                "description": stage.description,
+                "start_date": stage.start_date.isoformat() if stage.start_date else None,
+                "end_date": stage.end_date.isoformat() if stage.end_date else None,
+                "coverage_request": stage.coverage_request.value if stage.coverage_request else None
+            }
+            stages_requiring_contribution.append(stage_dict)
+
+    return stages_requiring_contribution
+
+    
+    
+    
 
 def link_to_bonita_case(project, case_id):
     """

@@ -12,10 +12,7 @@ class Config:
 
 class DevConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
-         f"postgresql://{os.environ.get('DB_USER','dev_user')}:{os.environ.get('DB_PASSWORD','dev_pass')}@{os.environ.get('DB_HOST','localhost')}:{os.environ.get('DB_PORT','5432')}/{os.environ.get('DB_NAME','flask_db')}"
-    )
+    SQLALCHEMY_DATABASE_URI = "postgresql://dev_user:dev_pass@localhost:5432/flask_db"
 
 
 class ProdConfig(Config):
@@ -23,7 +20,7 @@ class ProdConfig(Config):
     uri = os.environ.get("DATABASE_URL")
     if uri and uri.startswith("postgres://"):
         uri = uri.replace("postgres://", "postgresql://", 1)
-    SQLALCHEMY_DATABASE_URI = uri
+    SQLALCHEMY_DATABASE_URI = "postgresql://dev_user:dev_pass@localhost:5432/flask_db"
     
     if not os.environ.get("SECRET_KEY"):
         raise ValueError("SECRET_KEY environment variable must be set in production")
