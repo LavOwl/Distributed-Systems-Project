@@ -16,13 +16,23 @@ def create_project_from_payload(payload, user_id):
 
     return core_project_services.create_project(user_id,name, description, stages)
 
-def stages_require_contribution(payload):
-    stages = payload.get("stages", [])
+def stages_require_contribution(stages):
     stages_requiring_contribution = []
+
     for stage in stages:
-        if stage.get("requires_contribution", True):
-            stages_requiring_contribution.append(stage)
+        if stage.requires_contribution:
+            stage_dict = {
+                "id": stage.id,
+                "name": stage.name,
+                "description": stage.description,
+                "start_date": stage.start_date.isoformat() if stage.start_date else None,
+                "end_date": stage.end_date.isoformat() if stage.end_date else None,
+                "coverage_request": stage.coverage_request.value if stage.coverage_request else None
+            }
+            stages_requiring_contribution.append(stage_dict)
+
     return stages_requiring_contribution
+
     
     
     
