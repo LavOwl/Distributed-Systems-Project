@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Stage, ApiError, StatusStage, CoverageRequest } from '../../types/types';
 import { apiService } from '../../services/api';
 
-export function OwnedProjectList(){
+export function ProjectListLenders(){
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<ApiError | null>(null);
@@ -39,16 +39,16 @@ export function OwnedProjectList(){
 
   const groupedStagesArray = Object.values(groupedStages);
 
-  const finalizeStage = async (stage_id:number) => {
+  const contributeToStage = async (stage_id:number) => {
     try{
-        const response = await apiService.finalizeStage(stage_id);
-        setWarning({type: "SUCCESS", message: "Cierre de la contribución registrada!"})
+        const response = await apiService.confirmContribution(stage_id);
+        setWarning({type: "SUCCESS", message: "Contribución registrada!"})
     }
     catch (error: any) {
         if (error?.type === 'SESSION_EXPIRED') {
             setWarning({type:'FAILURE', message:'La sesión ha expirado. Por favor, inicie sesión nuevamente.'});
         } else if (error?.type === 'PERMISSION_DENIED') {
-            setWarning({type:'FAILURE', message:'No tiene permisos para dar contribuciones por finalizadas.'});
+            setWarning({type:'FAILURE', message:'No tiene permisos para .'});
         } else if (error?.type === 'NETWORK_ERROR') {
             setWarning({type:'FAILURE', message:'Error de conexión. Por favor, inténtelo de nuevo.'});
         } else if (error?.message) {
@@ -113,8 +113,8 @@ export function OwnedProjectList(){
       },
       NOT_FOUND: {
         title: 'Not Found',
-        message: 'No contribuiste a ninguna etapa aún.',
-        action: () => window.location.href = '/projects/available'
+        message: 'No hay etapas a las que contribuir aún.',
+        action: () => fetchstages()
       }
     };
 
@@ -194,7 +194,7 @@ export function OwnedProjectList(){
                 <h3 className={`text-sm font-medium ${
                   warning.type === 'SUCCESS' ? 'text-green-800' : 'text-red-800'
                 }`}>
-                  {warning.type === 'SUCCESS' ? 'Operación exitosa.' : 'Ha ocurrido un error confirmando el cierre de la contribución.'}
+                  {warning.type === 'SUCCESS' ? 'Operación exitosa.' : 'Ha ocurrido un error confirmando la contribución.'}
                 </h3>
                 <div className={`mt-2 text-sm ${
                   warning.type === 'SUCCESS' ? 'text-green-700' : 'text-red-700'
@@ -222,8 +222,8 @@ export function OwnedProjectList(){
 
         <div className="container w-full mx-auto">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Contribuciones</h1>
-            <p className="text-gray-600 mt-2">Estás contribuyendo a las siguientes etapas:.</p>
+            <h1 className="text-3xl font-bold text-gray-900">Etapas</h1>
+            <p className="text-gray-600 mt-2">Etapas por proyecto que solicitan contribución.</p>
           </div>
 
           {stages.length === 0 ? (
@@ -239,12 +239,12 @@ export function OwnedProjectList(){
                         Proyecto #{projectGroup.projectId}
                     </h2>
                     <p className="text-gray-600 mt-1">
-                        Estás contribuyendo a {projectGroup.stages.length} etapa{projectGroup.stages.length !== 1 ? 's' : ''} en este proyecto.
+                        Este proyecto requiere contribuciones para {projectGroup.stages.length} etapa{projectGroup.stages.length !== 1 ? 's' : ''}.
                     </p>
                     </div>
                     
                     <div className="p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Etapas Contribuidas</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Etapas del Proyecto</h3>
                     <div className="space-y-4">
                         {projectGroup.stages.map((stage) => (
                         <div key={stage.id} className="border border-gray-200 rounded-lg p-4">
@@ -272,8 +272,12 @@ export function OwnedProjectList(){
                             <div>
                                 <span className="font-medium">Fecha de fin estimada:</span>{' '}
                                 {stage.end_date ? new Date(stage.end_date).toLocaleDateString() : 'N/A'}
-                            </div><br/>
-                            <button className="px-4 hover:bg-green-100 w-fit cursor-pointer duration-200 h-9 border-2 border-green-800 text-black text-sm rounded-sm" onClick={() => finalizeStage(stage.id)}>Finalizar Contribución</button>
+                            </div>
+                            <div>
+                                <span className="font-medium">Requiere contribución:</span>{' '}
+                                {stage.requires_contribution ? 'Sí' : 'No'}
+                            </div>
+                            <button className="px-4 hover:bg-green-100 w-fit cursor-pointer duration-200 h-9 border-2 border-green-800 text-black text-sm rounded-sm" onClick={() => contributeToStage(stage.id)}>Cubrir Contribución</button>
                             </div>
                         </div>
                         ))}

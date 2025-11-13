@@ -75,6 +75,11 @@ export function ProjectListDirectives(){
         title: 'Error',
         message: error.message,
         action: () => fetchProjects()
+      },
+      NOT_FOUND: {
+        title: 'Not Found',
+        message: 'No hay etapas a las que contribuir aún.',
+        action: () => fetchProjects()
       }
     };
 

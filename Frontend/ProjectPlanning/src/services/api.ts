@@ -1,4 +1,4 @@
-import type { Project, ApiError } from '../types/types';
+import type { Project, Stage, ApiError } from '../types/types';
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -10,6 +10,8 @@ class ApiService {
           throw { type: 'SESSION_EXPIRED', message: 'Sesión expirada o inválida' } as ApiError;
         case 403:
           throw { type: 'PERMISSION_DENIED', message: 'Permisos insuficientes' } as ApiError;
+        case 404:
+          throw { type: 'NOT_FOUND', message: 'No hay nada acá todavía.' } as ApiError;
         default:
           throw { type: 'UNKNOWN_ERROR', message: `Error inesperado. Código: ${response.status}` } as ApiError;
       }
@@ -85,7 +87,95 @@ class ApiService {
             message: 'La conexión al servidor falló, por favor intentelo de nuevo.'
         } as ApiError;
     }
-}
+  }
+
+  async getAvailableStages(): Promise<Stage[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stage/v1/get_all_stages`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<Stage[]>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.' 
+      } as ApiError;
+    }
+  }
+
+  async getContributedStages(): Promise<Stage[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stage/v1/INSERT_URL_HERE`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<Stage[]>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.' 
+      } as ApiError;
+    }
+  }
+
+    async confirmContribution(stage_id:number): Promise<string> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stage/v1/cover_stage_by_id/${stage_id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<string>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.'
+      } as ApiError;
+    }
+  }
+
+   async finalizeStage(stage_id:number): Promise<string> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stage/v1/finish_stage_by_id/${stage_id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<string>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.'
+      } as ApiError;
+    }
+  }
 
 }
 

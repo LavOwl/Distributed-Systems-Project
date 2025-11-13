@@ -6,6 +6,7 @@ import { ProjectListDirectives } from "./components/pages/ProjectListDirectives"
 import { ProjectForm } from "./components/pages/ProjectForm"
 import { ProjectObservations } from "./components/pages/ProjectObservations"
 import { OwnedProjectList } from "./components/pages/OwnedProjectList"
+import { ProjectListLenders } from './components/pages/ProjectListLenders';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/projects" element={<ProjectListDirectives />} />
                 <Route path="/projects/new" element={<ProjectForm />} />
+                <Route path="/projects/available" element={<ProjectListLenders />} />
+
                 <Route path="/projects/owned" element={<OwnedProjectList />} />
                 <Route path="/projects/:id/observations" element={<ProjectObservations />} />
               </Routes>
