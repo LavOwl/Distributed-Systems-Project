@@ -123,8 +123,8 @@ def add_observation(project_id: int):
         case_id = observation_service.get_current_case()
 
         # Incrementa la variable de cantidad de observaciones en Bonita.
-        contador_actual = bonita.obtener_variables_caso(case_id)["contador_actual"]
-        bonita.actualizar_variables_caso(case_id, {"contador_observaciones": contador_actual + 1})
+        contador_actual = bonita.obtener_variable_de_caso(case_id, "contador_observaciones")
+        bonita.establecer_variable_al_caso(case_id, "contador_observaciones", contador_actual + 1, "java.lang.Integer")
         
         # Crea la observación, almacenando el case_id en ella.
         project_service.add_observation(case_id, project_id, data)
