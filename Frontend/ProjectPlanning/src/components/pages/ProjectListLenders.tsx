@@ -118,7 +118,7 @@ export function ProjectListLenders(){
       }
     };
 
-    const config = errorConfig[error.type];
+     const config = error.type in errorConfig ? errorConfig[error.type as keyof typeof errorConfig] : errorConfig.UNKNOWN_ERROR;
 
     return (
       <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
