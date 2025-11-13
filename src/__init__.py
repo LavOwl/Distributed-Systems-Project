@@ -1,24 +1,13 @@
-from flask import Flask, render_template, g, session
 from src.web.blueprints import register_blueprints
 from src.config.config import get_config
 from src.core.database import db, reset
 from src.core import seed_data
 from flask_cors import CORS
-from pathlib import Path
+from flask import Flask
 
 # Creación de la app principal.
 def create_app() -> Flask:
-    # Ruta a los templates y archivos estáticos.
-    base_path = Path(__file__).parent
-    templates_path = base_path / "web" / "templates"
-    static_path = base_path / "web" / "static"
-
-    # Creación de la APP flask tomando las carpetas para los templates.
-    app: Flask = Flask(
-        __name__,
-        template_folder=str(templates_path),
-        static_folder=str(static_path)
-    )
+    app: Flask = Flask(__name__)
 
     # Seteo de configuración.
     app.config.from_object(get_config())
@@ -28,14 +17,8 @@ def create_app() -> Flask:
      allow_headers=["Content-Type", "Authorization"]
     )
     
+    # Inicialización de la base de datos.
     db.init_app(app)
-
-    # Almacenamiento de datos de la sesión del usuario.
-    @app.before_request
-    def load_logged_in_user():
-        g.user = session.get("username")
-        g.role = session.get("role")
-        g.logged_in = session.get("logged_in", False)
 
     # Registro de blueprints.
     register_blueprints(app)
@@ -53,7 +36,7 @@ def create_app() -> Flask:
     # Renderización del home.
     @app.route("/")
     def home():
-        return render_template("home.html")
+        return "Backend ejecutando correctamente ✅."
     
     @app.cli.command("debug-uri")
     def debug_uri():
@@ -63,7 +46,7 @@ def create_app() -> Flask:
         print(f"URI length: {len(uri)}")
         print(f"URI as bytes: {uri.encode('utf-8')}")
         
-        # Verificar caracteres problemáticos
+        # Verificar caracteres problemáticos.
         for i, char in enumerate(uri):
             try:
                 char.encode('utf-8')

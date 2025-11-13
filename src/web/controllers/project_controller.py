@@ -1,25 +1,13 @@
 from src.web.handlers.helpers import get_authenticated_bonita_service
-from flask import Blueprint, jsonify, request, g, render_template
 from src.web.handlers.authentication import require_bonita_auth
+from flask import Blueprint, jsonify, request, g
 from src.web.services import observation_service
 from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
 import json
+
 project_bp = Blueprint("project", __name__)
-
-@project_bp.get("/v1/create_project")
-@require_bonita_auth("ong_originante")
-def create_project_form():
-    """
-    Muestra el formulario de creación de proyecto.
-    (1) Recibe:
-        1. Nada.
-    (2) Devuelve:
-        2. Renderiza template /project/create_project.html.
-    """
-    return render_template("project/create_project.html")
-
 
 @project_bp.post("/v1/create_project")
 @require_bonita_auth("ong_originante")
@@ -37,34 +25,45 @@ def create_project():
         8. requires_contribution (etapa): boolean.
     (2) Devuelve:
         1. 201 - message: proyecto creado correctamente.
-        2. 401 - error: sesión expirada o inválida.
-        3. 403 - error: el usuario no tiene permisos para acceder.
+        2. 400 - errors: mensaje específico con los errores de validación.
+        3. 401 - error: sesión expirada o inválida.
+        4. 403 - error: el usuario no tiene permisos para acceder.
     """
     try:
+        # Obtener los datos del body.
         data = request.get_json()
+
+        # Obtención del user_id de la sesión actual.
         user_id = g.bonita_user["user_id"]
+
+        # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
-          # Creación del proyecto.
+
+        # Creación del proyecto.
         project = project_service.create_project_from_payload(data, user_id)
-        #inicio el proceso en Bonita
-        stages_required_contribution = project_service.stages_require_contribution(project.stages)
-                
+
+        # Inicio del proceso en Bonita.
+        stages_required_contribution = project_service.stages_require_contribution(data)
+        
+        # Agregación del atributo id_project a cada stage.
+        for stage in stages_required_contribution:
+            stage["id_project"] = project.id
+        
+        # Conversión de las stages a JSON.
+        stages_json = json.dumps(stages_required_contribution, separators=(',', ':'))
+
         # Seteo de la variable de número de etapas al proceso de Bonita.
         numero_etapas = project_service.contar_etapas_colaborativas(data)
         
-        print(stages_required_contribution)
-        print(type(stages_required_contribution))
-
-        case_id = bonita.iniciar_proceso_con_datos(
-            "proceso_de_ejecucion",
-            {
-                "stages": stages_required_contribution, "numero_etapas": numero_etapas
-            }
-        )
-        project_service.link_to_bonita_case(project, case_id)
-        bonita.completar_tarea(case_id)
+        # Iniciación del proceso en Bonita.
+        case_id = bonita.iniciar_proceso_con_datos("proceso_de_ejecucion", {"stages": stages_json, "numero_etapas": numero_etapas})
         
-        return jsonify({"stages": stages_required_contribution}), 200
+        # Agregación de atributo case_id al proyecto.
+        project_service.link_to_bonita_case(project, case_id)
+
+        # Completitud de tarea en Bonita.
+        bonita.completar_tarea(case_id)
+        return jsonify({"message": "Proyecto creado correctamente"}), 201
     except ValidationError as e:
         return jsonify({"errors": e.errors()}), 400
 
@@ -118,17 +117,14 @@ def add_observation(project_id: int):
     data = request.get_json()
     try:
         # Obtención de las cookies de la sesión actual.
-
         bonita = get_authenticated_bonita_service()
 
         # Obtiene el case_id actual.
         case_id = observation_service.get_current_case()
-        
 
         # Incrementa la variable de cantidad de observaciones en Bonita.
-        contador_actual = bonita.obtener_variable_de_caso(case_id, "contador_observaciones")
-
-        bonita.establecer_variable_al_caso(case_id, "contador_observaciones", contador_actual + 1, "java.lang.Integer")
+        contador_actual = bonita.obtener_variables_caso(case_id)["contador_actual"]
+        bonita.actualizar_variables_caso(case_id, {"contador_observaciones": contador_actual + 1})
         
         # Crea la observación, almacenando el case_id en ella.
         project_service.add_observation(case_id, project_id, data)
@@ -177,7 +173,7 @@ def get_observations_by_user():
         1. 200 - lista de observaciones del usuario.
         2. 401 - error: sesión expirada o inválida.
         3. 403 - error: el usuario no tiene permisos para acceder.
-        4. 404 - message: no se encontraron observaciones.
+        4. 404 - message: no se encontraron observaciones asociadas a tus proyectos.
         5. 500 - error: ocurrió un error inesperado.
     """
     try:
@@ -206,14 +202,13 @@ def upload_corrected_observation(observation_id: int):
     observation = project_service.upload_corrected_observation(observation_id)
     if not observation:
         return jsonify({"message": f"No se encontró la observación."}), 404
-
+    
     # Obtenemos el case_id de la observación.
     case_id = observation.case_id
 
     # Completamos la tarea en Bonita.
     bonita = get_authenticated_bonita_service()
     bonita.completar_tarea(case_id)
-
     return jsonify({"message": f"La observación ha sido marcada como completada."}), 200
 
 
@@ -236,3 +231,17 @@ def avanzar():
     bonita.completar_tarea(case_id)
 
     return jsonify({"message": "Tarea avanzada correctamente."}), 200
+
+
+@project_bp.get("/v1/debug/case-variables/<case_id>")
+@require_bonita_auth("ong_originante")
+def get_case_variables(case_id):
+    """
+    Endpoint de debug que muestra las variables de un caso de Bonita.
+    """
+    try:
+        bonita = get_authenticated_bonita_service()
+        variables = bonita.obtener_variables_caso(case_id)
+        return jsonify({"case_id": case_id, "variables": variables}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
