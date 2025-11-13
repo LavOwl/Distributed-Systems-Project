@@ -17,6 +17,7 @@ def create_app() -> Flask:
      allow_headers=["Content-Type", "Authorization"]
     )
     
+    # Inicialización de la base de datos.
     db.init_app(app)
 
     # Registro de blueprints.
@@ -45,7 +46,7 @@ def create_app() -> Flask:
         print(f"URI length: {len(uri)}")
         print(f"URI as bytes: {uri.encode('utf-8')}")
         
-        # Verificar caracteres problemáticos
+        # Verificar caracteres problemáticos.
         for i, char in enumerate(uri):
             try:
                 char.encode('utf-8')

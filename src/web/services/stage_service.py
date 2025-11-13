@@ -16,14 +16,14 @@ def get_all_stages_by_project():
     return [stage.to_dict() for stage in stages]
 
 
-def cover_stage(stage_id: int):
+def cover_stage(user_id, stage_id: int):
     """
     Cubre una etapa específica según su ID.
     """
     stage = services.get_pending_stage_by_id(stage_id)
     if not stage:
         return None
-    return services.cover_stage(stage)
+    return services.cover_stage(user_id, stage)
 
 
 def get_case_id_by_stage(stage):
@@ -33,6 +33,14 @@ def get_case_id_by_stage(stage):
     if not stage or not stage.project:
         return None
     return stage.project.case_id
+
+
+def get_in_progress_stages_for_user(user_id: int):
+    """
+    Obtiene las etapas en progreso del usuario actual.
+    """
+    stages = services.get_in_progress_stages_by_user(user_id)
+    return [stage.to_dict() for stage in stages]
 
 
 def finish_stage(stage_id: int):

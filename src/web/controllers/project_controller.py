@@ -6,6 +6,7 @@ from src.web.services import project_service
 from werkzeug.exceptions import BadRequest
 from pydantic import ValidationError
 import json
+
 project_bp = Blueprint("project", __name__)
 
 @project_bp.post("/v1/create_project")
@@ -14,12 +15,19 @@ def create_project():
     """
     Crea un proyecto con los datos recibidos.
     (1) Recibe (JSON en el BODY):
-        1. name: string.
-        2. description: string.
+        1. name (proyecto): string.
+        2. description (proyecto): string.
+        3. name (etapa): string.
+        4. description (etapa): string.
+        5. start_date (etapa): date.
+        6. end_date (etapa): date.
+        7. coverage_request (etapa): enum.
+        8. requires_contribution (etapa): boolean.
     (2) Devuelve:
         1. 201 - message: proyecto creado correctamente.
-        2. 401 - error: sesión expirada o inválida.
-        3. 403 - error: el usuario no tiene permisos para acceder.
+        2. 400 - errors: mensaje específico con los errores de validación.
+        3. 401 - error: sesión expirada o inválida.
+        4. 403 - error: el usuario no tiene permisos para acceder.
     """
     try:
         # Obtener los datos del body.
@@ -30,35 +38,38 @@ def create_project():
 
         # Obtención de las cookies de la sesión actual.
         bonita = get_authenticated_bonita_service()
-          # Creación del proyecto.
+
+        # Creación del proyecto.
         project = project_service.create_project_from_payload(data, user_id)
-        #inicio el proceso en Bonita
-        stages_required_contribution = project_service.stages_require_contribution(project.stages)
-                
+
+        # Inicio del proceso en Bonita.
+        stages_required_contribution = project_service.stages_require_contribution(data)
+        
+        # Agregación del atributo id_project a cada stage.
+        for stage in stages_required_contribution:
+            stage["id_project"] = project.id
+        
+        # Conversión de las stages a JSON.
+        stages_json = json.dumps(stages_required_contribution, separators=(',', ':'))
+
         # Seteo de la variable de número de etapas al proceso de Bonita.
         numero_etapas = project_service.contar_etapas_colaborativas(data)
         
-        print(stages_required_contribution)
-        print(type(stages_required_contribution))
-
-        case_id = bonita.iniciar_proceso_con_datos(
-            "proceso_de_ejecucion",
-            {
-                "stages": stages_required_contribution, "numero_etapas": numero_etapas
-            }
-        )
-        project_service.link_to_bonita_case(project, case_id)
-        bonita.completar_tarea(case_id)
+        # Iniciación del proceso en Bonita.
+        case_id = bonita.iniciar_proceso_con_datos("proceso_de_ejecucion", {"stages": stages_json, "numero_etapas": numero_etapas})
         
-        return jsonify({"stages": stages_required_contribution}), 200
+        # Agregación de atributo case_id al proyecto.
+        project_service.link_to_bonita_case(project, case_id)
+
+        # Completitud de tarea en Bonita.
+        bonita.completar_tarea(case_id)
+        return jsonify({"message": "Proyecto creado correctamente"}), 201
     except ValidationError as e:
-            return jsonify({"errors": e.errors()}), 400
-    #     return jsonify({"message": "Proyecto creado correctamente."}), 201
-    # 
+        return jsonify({"errors": e.errors()}), 400
 
 
 @project_bp.get("/v1/get_projects_with_stages")
-@require_bonita_auth("consejo_Directivo")
+@require_bonita_auth("consejo_directivo")
 def get_projects_with_stages():
     """
     Devuelve todos los proyectos con todas sus etapas.
@@ -86,7 +97,7 @@ def get_projects_with_stages():
 
 
 @project_bp.post("/v1/add_observation/<int:project_id>")
-@require_bonita_auth("consejo_Directivo")
+@require_bonita_auth("consejo_directivo")
 def add_observation(project_id: int):
     """
     Agrega una observación a un proyecto a partir de su ID de proyecto.
@@ -106,16 +117,13 @@ def add_observation(project_id: int):
     data = request.get_json()
     try:
         # Obtención de las cookies de la sesión actual.
-
         bonita = get_authenticated_bonita_service()
 
         # Obtiene el case_id actual.
         case_id = observation_service.get_current_case()
-        
 
         # Incrementa la variable de cantidad de observaciones en Bonita.
         contador_actual = bonita.obtener_variable_de_caso(case_id, "contador_observaciones")
-
         bonita.establecer_variable_al_caso(case_id, "contador_observaciones", contador_actual + 1, "java.lang.Integer")
         
         # Crea la observación, almacenando el case_id en ella.
@@ -128,7 +136,7 @@ def add_observation(project_id: int):
 
 
 @project_bp.post("/v1/finalizar_revision")
-@require_bonita_auth("consejo_Directivo")
+@require_bonita_auth("consejo_directivo")
 def finalizar_revision():
     """
     Finaliza la tarea de revisión del Consejo Directivo en Bonita.
@@ -165,7 +173,7 @@ def get_observations_by_user():
         1. 200 - lista de observaciones del usuario.
         2. 401 - error: sesión expirada o inválida.
         3. 403 - error: el usuario no tiene permisos para acceder.
-        4. 404 - message: no se encontraron observaciones.
+        4. 404 - message: no se encontraron observaciones asociadas a tus proyectos.
         5. 500 - error: ocurrió un error inesperado.
     """
     try:
@@ -194,14 +202,13 @@ def upload_corrected_observation(observation_id: int):
     observation = project_service.upload_corrected_observation(observation_id)
     if not observation:
         return jsonify({"message": f"No se encontró la observación."}), 404
-
+    
     # Obtenemos el case_id de la observación.
     case_id = observation.case_id
 
     # Completamos la tarea en Bonita.
     bonita = get_authenticated_bonita_service()
     bonita.completar_tarea(case_id)
-
     return jsonify({"message": f"La observación ha sido marcada como completada."}), 200
 
 
@@ -230,15 +237,11 @@ def avanzar():
 @require_bonita_auth("ong_originante")
 def get_case_variables(case_id):
     """
-    Endpoint de debug: muestra las variables de un caso de Bonita.
+    Endpoint de debug que muestra las variables de un caso de Bonita.
     """
     try:
         bonita = get_authenticated_bonita_service()
         variables = bonita.obtener_variables_caso(case_id)
-        
-        return jsonify({
-            "case_id": case_id,
-            "variables": variables
-        }), 200
+        return jsonify({"case_id": case_id, "variables": variables}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

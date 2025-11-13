@@ -1,7 +1,7 @@
 from src.web.handlers.helpers import get_authenticated_bonita_service
 from src.web.handlers.authentication import require_bonita_auth
 from src.web.services import stage_service
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, g
 
 stage_bp = Blueprint("stage", __name__)
 
@@ -55,7 +55,9 @@ def cover_stage_by_id(stage_id: int):
         3. 401 - error: sesión expirada o inválida.
         4. 403 - error: el usuario no tiene permisos para acceder.
     """
-    stage = stage_service.cover_stage(stage_id)
+    # Obtención del user_id de la sesión actual.
+    user_id = g.bonita_user["user_id"]
+    stage = stage_service.cover_stage(user_id, stage_id)
     case_id = stage_service.get_case_id_by_stage(stage)
 
     # Obtención de las cookies de la sesión actual.
@@ -67,6 +69,26 @@ def cover_stage_by_id(stage_id: int):
     if stage:
         return jsonify({"message": f"La etapa ha pasado de pendiente a en ejecución exitosamente."}), 200
     return jsonify({"error": f"No se pudo cubrir la etapa. Es posible que ya este en progreso o haya sido cubierta."}), 400
+
+
+@stage_bp.get("/v1/get_in_progress_stages")
+@require_bonita_auth("ong_colaborativa")
+def get_in_progress_stages():
+    """
+    Devuelve las etapas en estado "IN_PROGRESS" del usuario autenticado.
+    (1) No recibe nada.
+    (2) Devuelve:
+        1. 200 - listado con las etapas del usuario autenticado en estado "IN_PROGRESS".
+        2. 401 - error: sesión expirada o inválida.
+        3. 403 - error: el usuario no tiene permisos para acceder.
+        4. 500 - error: mensaje de error específico.
+    """
+    try:
+        user_id = g.bonita_user["user_id"]
+        stages = stage_service.get_in_progress_stages_for_user(user_id)
+        return jsonify(stages), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @stage_bp.patch("/v1/finish_stage_by_id/<int:stage_id>")

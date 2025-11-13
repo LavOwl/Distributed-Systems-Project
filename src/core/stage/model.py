@@ -26,6 +26,7 @@ class Stage(db.Model):
     """
     __tablename__ = "stages"
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=True)
     id_project = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=True)
@@ -40,6 +41,7 @@ class Stage(db.Model):
     def to_dict(self):
            return {
                 "id": self.id,
+                "user_id": self.user_id,
                 "id_project": self.id_project,
                 "name": self.name,
                 "description": self.description,

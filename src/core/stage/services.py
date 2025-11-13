@@ -50,11 +50,12 @@ def get_pending_stage_by_id(stage_id: int):
     return stage
 
 
-def cover_stage(stage: Stage):
+def cover_stage(user_id, stage: Stage):
     """
     Cubre una etapa específica según su ID.
     """
     try:
+        stage.user_id = user_id
         stage.status = StatusStage.IN_PROGRESS
         db.session.commit()
     except SQLAlchemyError as error:
@@ -69,6 +70,15 @@ def get_in_progress_stage_by_id(stage_id: int):
     """
     stage = Stage.query.filter_by(id=stage_id, status=StatusStage.IN_PROGRESS).first()
     return stage
+
+
+def get_in_progress_stages_by_user(user_id: int):
+    """
+    Retorna todas las etapas que están en progreso (IN_PROGRESS)
+    asignadas a un usuario específico.
+    """
+    stages = Stage.query.filter_by(user_id=user_id, status=StatusStage.IN_PROGRESS).all()
+    return stages
 
 
 def finish_stage(stage: Stage):
