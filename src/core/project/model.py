@@ -16,3 +16,12 @@ class Project(db.Model):
 
     # Relación entre project y observation.
     observations = db.relationship("Observation", back_populates="project")
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "case_id": self.case_id,
+            "user_id": self.user_id,
+            "name": self.name,
+            "description": self.description
+        }

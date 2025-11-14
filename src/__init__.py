@@ -11,11 +11,9 @@ def create_app() -> Flask:
 
     # Seteo de configuración.
     app.config.from_object(get_config())
-    CORS(app, 
-     origins=["http://localhost:5173"],
-     supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"]
-    )
+      # CORS en una sola línea
+    CORS(app, origins=["http://localhost:5173"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"])
+
     
     # Inicialización de la base de datos.
     db.init_app(app)

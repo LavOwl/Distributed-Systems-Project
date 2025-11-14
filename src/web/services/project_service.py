@@ -87,3 +87,18 @@ def contar_etapas_colaborativas(data):
     """
     etapas = data.get("stages", [])
     return sum(1 for etapa in etapas if etapa.get("requires_contribution"))
+
+def get_project_by_case_id(case_id: int):
+    """
+    Obtiene un proyecto a partir de su case_id de Bonita.
+    """
+    return core_project_services.get_project_by_case_id(case_id)
+
+
+def get_latest_stage_end_date(project):
+    """
+    Obtiene la fecha máxima de fin entre las stages de un proyecto.
+    """
+    if not project.stages:
+        return None
+    return max(stage.end_date for stage in project.stages if stage.end_date)

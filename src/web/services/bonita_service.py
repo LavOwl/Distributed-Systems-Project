@@ -334,3 +334,34 @@ class BonitaService:
             except:
                 return {"success": True}
         return {"success": True}
+    
+    
+    def get_archived_cases(self, process_name=None):
+        """
+        Obtiene casos archivados (finalizados correctamente) de Bonita.
+        """
+        url = f"{self.base_url}/API/bpm/archivedCase"
+        headers = {'X-Bonita-API-Token': self.csrf_token}
+        
+        filters = ['state=completed']  # Solo casos completados exitosamente
+        
+        if process_name:
+            process_id = self.obtener_id_proceso(process_name)
+            if process_id:
+                filters.append(f'processDefinitionId={process_id}')
+        
+        params = {
+            'p': 0, 
+            'c': 100,
+            'f': '&'.join(filters)  # Unir filtros con &
+        }
+        
+        try:
+            response = self.session.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            cases = response.json()
+            print(f"Casos completados encontrados: {len(cases)}")
+            return cases
+        except Exception as e:
+            print(f"Error obteniendo casos archivados: {e}")
+            return []
