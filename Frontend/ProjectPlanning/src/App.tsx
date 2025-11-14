@@ -24,7 +24,7 @@ function App() {
                 <Route path="/projects/available" element={<ProjectListLenders />} />
 
                 <Route path="/projects/owned" element={<OwnedProjectList />} />
-                <Route path="/projects/:id/observations" element={<ProjectObservations />} />
+                <Route path="/projects/observations" element={<ProjectObservations />} />
               </Routes>
           </main>
 

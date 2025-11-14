@@ -16,7 +16,7 @@ export function OwnedProjectList(){
     try {
       setLoading(true);
       setError(null);
-      const stagesData = await apiService.getAvailableStages();
+      const stagesData = await apiService.getContributedStages();
       setStages(stagesData);
     } catch (err) {
       setError(err as ApiError);
@@ -43,6 +43,9 @@ export function OwnedProjectList(){
     try{
         const response = await apiService.finalizeStage(stage_id);
         setWarning({type: "SUCCESS", message: "Cierre de la contribución registrada!"})
+        setStages(stages => 
+          stages.filter(s => s.id !== stage_id)
+        );
     }
     catch (error: any) {
         if (error?.type === 'SESSION_EXPIRED') {
@@ -51,8 +54,8 @@ export function OwnedProjectList(){
             setWarning({type:'FAILURE', message:'No tiene permisos para dar contribuciones por finalizadas.'});
         } else if (error?.type === 'NETWORK_ERROR') {
             setWarning({type:'FAILURE', message:'Error de conexión. Por favor, inténtelo de nuevo.'});
-        } else if (error?.message) {
-            setWarning(error.message);
+        } else if (error?.type === 'CONFLICT'){
+            setWarning({type:'FAILURE', message:'El proyecto no está iniciado aún.'});
         } else {
             setWarning({type:'FAILURE', message:'Ocurrió un error inesperado al intentar confirmar la contribución.'});
         }
@@ -115,10 +118,10 @@ export function OwnedProjectList(){
         title: 'Not Found',
         message: 'No contribuiste a ninguna etapa aún.',
         action: () => window.location.href = '/projects/available'
-      }
+      },
     };
 
-    const config = errorConfig[error.type];
+    const config = error.type in errorConfig ? errorConfig[error.type as keyof typeof errorConfig] : errorConfig.UNKNOWN_ERROR;
 
     return (
       <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">

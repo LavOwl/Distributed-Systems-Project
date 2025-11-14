@@ -1,4 +1,4 @@
-import type { Project, Stage, ApiError } from '../types/types';
+import type { Project, Stage, ApiError, Observation } from '../types/types';
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -113,7 +113,7 @@ class ApiService {
 
   async getContributedStages(): Promise<Stage[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/stage/v1/INSERT_URL_HERE`, {
+      const response = await fetch(`${API_BASE_URL}/stage/v1/get_in_progress_stages`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -164,7 +164,9 @@ class ApiService {
           'Content-Type': 'application/json',
         },
       });
-
+      if (response.status === 409){
+        throw { type: 'CONFLICT', message: 'El proyecto no está aún iniciado.' } as ApiError;
+      }
       return await this.handleResponse<string>(response);
     } catch (error) {
       if (error && typeof error === 'object' && 'type' in error) {
@@ -173,6 +175,50 @@ class ApiService {
       throw { 
         type: 'NETWORK_ERROR', 
         message: 'La conexión al servidor falló, por favor intentelo de nuevo.'
+      } as ApiError;
+    }
+  }
+
+  async getObservationsByUser(): Promise<Observation[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/project/v1/get_observations_by_user`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<Observation[]>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.' 
+      } as ApiError;
+    }
+  }
+
+  async finalizarObservacion(observation_id:number): Promise<Observation[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/project/v1/upload_corrected_observation/${observation_id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<Observation[]>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.' 
       } as ApiError;
     }
   }
