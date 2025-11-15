@@ -223,6 +223,58 @@ class ApiService {
     }
   }
 
+async obtainStats(): Promise<{
+  casosSinColaboracion: any;
+  casosExitososEnTermino: any;
+  casosFueraDePlazo: any;
+}> {
+  try {
+    const [sinColaboracionResponse, exitososResponse, fueraPlazoResponse] = await Promise.all([
+      fetch(`${API_BASE_URL}/monitor/v1/casos_sin_colaboracion`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      fetch(`${API_BASE_URL}/monitor/v1/casos_exitosos_en_termino`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      fetch(`${API_BASE_URL}/monitor/v1/casos_fuera_de_plazo`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    ]);
+
+    const [sinColaboracionData, exitososData, fueraPlazoData] = await Promise.all([
+      this.handleResponse<any>(sinColaboracionResponse),
+      this.handleResponse<any>(exitososResponse),
+      this.handleResponse<any>(fueraPlazoResponse)
+    ]);
+
+    return {
+      casosSinColaboracion: sinColaboracionData,
+      casosExitososEnTermino: exitososData,
+      casosFueraDePlazo: fueraPlazoData
+    };
+
+  } catch (error) {
+    if (error && typeof error === 'object' && 'type' in error) {
+      throw error;
+    }
+    throw { 
+      type: 'NETWORK_ERROR', 
+      message: 'La conexión al servidor falló, por favor intentelo de nuevo.' 
+    } as ApiError;
+  }
+}
 }
 
 export const apiService = new ApiService();

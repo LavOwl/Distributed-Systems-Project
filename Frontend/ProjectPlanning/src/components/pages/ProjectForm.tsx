@@ -21,6 +21,14 @@ export function ProjectForm(){
         setTasks(tasks.filter((task) => task.id !== id));
     };
 
+    const formatDateForValidator = (dateString: string): string => {
+    if (!dateString) return new Date().toISOString();
+    
+    // Add time component to make it a valid datetime
+    const dateWithTime = new Date(dateString + 'T00:00:00');
+    return dateWithTime.toISOString();
+  };
+
     const initiateFlaskBonita = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -30,32 +38,36 @@ export function ProjectForm(){
 
         var projectTasks = tasks.map((task) => ({
         name: formData.get(`Nombre de Tarea${task.id}`) as string,
-        start_date: formData.get(`Fecha de Inicio${task.id}`) as string,
-        end_date: formData.get(`Fecha de Fin${task.id}`) as string,
+        start_date: formatDateForValidator(formData.get(`Fecha de Inicio${task.id}`) as string),
+        description: '',
+        end_date: formatDateForValidator(formData.get(`Fecha de Fin${task.id}`) as string),
         coverage_request: formData.get(`Categoría${task.id}`) as string,
-        requires_contributor: !!formData.get(`Requiere contribución0`)
+        requires_contribution: !!formData.get(`Requiere contribución:${task.id}`)
         }));
 
         projectTasks.push({
         name: formData.get(`Nombre de Tarea0`) as string,
-        start_date: formData.get(`Fecha de Inicio0`) as string,
-        end_date: formData.get(`Fecha de Fin0`) as string,
+        start_date: formatDateForValidator(formData.get(`Fecha de Inicio0`) as string),
+        description: '',
+        end_date: formatDateForValidator(formData.get(`Fecha de Fin0`) as string),
         coverage_request: formData.get(`Categoría0`) as string,
-        requires_contributor: !!formData.get(`Requiere contribución0`),
+        requires_contribution: !!formData.get(`Requiere contribución:0`),
         })
 
+
         const payload = {
-        title: processName,
+        name: processName,
         description: desc,
         stages: projectTasks,
         };
-
+        console.log(payload)
         try {
         const response = await fetch(
-            `http://127.0.0.1:5000/project/v1/create_project`,
+            `http://localhost:5000/project/v1/create_project`,
             {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: 'include',
             body: JSON.stringify(payload),
             }
         );

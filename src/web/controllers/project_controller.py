@@ -48,6 +48,8 @@ def create_project():
         # Agregación del atributo id_project a cada stage.
         for stage in stages_required_contribution:
             stage["id_project"] = project.id
+
+       
         
         # Conversión de las stages a JSON.
         stages_json = json.dumps(stages_required_contribution, separators=(',', ':'))

@@ -17,6 +17,7 @@ def crear_stage(id_project, coverage_request, requires_contribution, name, descr
             requires_contribution=requires_contribution,
             id_project=id_project
         )
+        print(requires_contribution)
 
         # Almacenamiento del stage en la base de datos.
         db.session.add(stage)
