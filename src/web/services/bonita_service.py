@@ -311,6 +311,7 @@ class BonitaService:
         else:
             response.raise_for_status()
 
+
     def get_archive_case_variable(self, case_id, variable_name):
         """
         Obtiene el valor de una variable de un case.
@@ -324,9 +325,7 @@ class BonitaService:
                 return response.json().get('value')
             return None
         except Exception as e:
-            print(f"Error: {e}")
             return None
-
 
 
     def establecer_variable_al_caso(self, case_id, variable_name, value, tipo="java.lang.Integer"):
@@ -351,45 +350,45 @@ class BonitaService:
             except:
                 return {"success": True}
         return {"success": True}
-    
-    
+
+
     def get_archived_cases(self, process_name=None):
         """
         Obtiene casos archivados (finalizados correctamente) de Bonita.
         """
-        
-        
-        #Endpoint de casos archivados
+    
+        # Endpoint de casos archivados.
         url = f"{self.base_url}/API/bpm/archivedCase"
         headers = {'X-Bonita-API-Token': self.csrf_token}
-        
-        filters = ['state=completed']  # Solo casos completados exitosamente
+
+        # Filtramos solo por los casos completados exitosamente.
+        filters = ['state=completed']
         
         if process_name:
             process_id = self.obtener_id_proceso(process_name)
             if process_id:
                 filters.append(f'processDefinitionId={process_id}')
         
-        # El endpoint de bonita necesita parametros
-        # p indica la página (0-indexed)
-        # c indica la cantidad de resultados por página
-        # f indica los filtros
+        # El endpoint de bonita necesita parámetros.
+        # p indica la página (0-indexed).
+        # c indica la cantidad de resultados por página.
+        # f indica los filtros.
         params = {
             'p': 0, 
             'c': 100,
-            'f': '&'.join(filters)  # Unir filtros con &
+            'f': '&'.join(filters)  # Une filtros con &.
         }
-        
+
+        # Se realiza la petición.
         try:
             response = self.session.get(url, headers=headers, params=params)
             response.raise_for_status()
             cases = response.json()
             return cases
         except Exception as e:
-            print(f"Error obteniendo casos archivados: {e}")
             return []
-        
-            
+
+
     def get_archived_tasks(self, case_id=None):
         """
         Obtiene tareas archivadas (completadas) de Bonita.
@@ -400,11 +399,9 @@ class BonitaService:
         params = {'p': 0, 'c': 100}
         if case_id:
             params['f'] = f'caseId={case_id}'
-        
         try:
             response = self.session.get(url, headers=headers, params=params)
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            print(f"Error: {e}")
             return []

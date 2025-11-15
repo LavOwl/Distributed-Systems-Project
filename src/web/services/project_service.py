@@ -88,6 +88,7 @@ def contar_etapas_colaborativas(data):
     etapas = data.get("stages", [])
     return sum(1 for etapa in etapas if etapa.get("requires_contribution"))
 
+
 def get_project_by_case_id(case_id: int):
     """
     Obtiene un proyecto a partir de su case_id de Bonita.
