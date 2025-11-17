@@ -21,7 +21,7 @@ export function ObservationButton({project_id} : {project_id:number}){
                 description: description
             });
             
-            e.currentTarget.reset();
+            e.currentTarget?.reset();
             setSeeMsg(false);
         } catch (error: any) {
             if (error && typeof error === 'object' && 'message' in error) {

@@ -1,10 +1,11 @@
 import { TextInput } from "../common/TextInput";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
-export function Login() {
+export function Login({redirect}:{redirect:()=>void}) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-
+    const navigate = useNavigate();
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsLoading(true);
@@ -30,9 +31,8 @@ export function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                setMessage({ text: data.message, type: 'success' });
-
-                console.log('Login successful!');
+                redirect()
+                navigate('/landing')
             } else {
                 setMessage({ text: data.error, type: 'error' });
             }
@@ -45,9 +45,9 @@ export function Login() {
     };
 
     return (
-        <>
+        <> 
             <form 
-                className="flex flex-col w-1/5 min-w-60 h-70 p-8 pt-2 border-2 rounded-xl border-gray-300 shadow-xl justify-between"
+                className="flex flex-col mt-18 w-1/5 min-w-60 h-70 p-8 pt-2 border-2 rounded-xl border-gray-300 shadow-xl justify-between"
                 onSubmit={handleSubmit}
             >
                 <div className='flex flex-col gap-3'>

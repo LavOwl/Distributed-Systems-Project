@@ -275,6 +275,28 @@ async obtainStats(): Promise<{
     } as ApiError;
   }
 }
+
+  async getPermissions(): Promise<{ permissions: string[] } | { no_permissions: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/permissions`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return await this.handleResponse<{ permissions: string[] } | { no_permissions: string }>(response);
+    } catch (error) {
+      if (error && typeof error === 'object' && 'type' in error) {
+        throw error;
+      }
+      throw { 
+        type: 'NETWORK_ERROR', 
+        message: 'La conexión al servidor falló, por favor intentelo de nuevo.' 
+      } as ApiError;
+    }
+  }
 }
 
 export const apiService = new ApiService();
