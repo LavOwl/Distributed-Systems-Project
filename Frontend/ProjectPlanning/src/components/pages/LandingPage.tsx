@@ -9,12 +9,13 @@ export function LandingPage() {
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div className="flex items-center">
-                <h1 className="relative text-5xl font-light mb-2 italic">
-                  Proj<span className="absolute top-4 transform scale-x-200 rotate-180 left-1">🠀</span>
-                  <span className="relative top-2 right-1 font-normal">
-                    Planning<span className="relative right-[2.6rem] bottom-[1.1rem] text-pink-400 text-[0.5rem]">❤︎</span>
-                  </span>
-                </h1>
+
+                  <h1 className='relative text-3xl scale-170 font-light mb-2 italic'>
+                    Proj<span className='absolute top-4 transform scale-x-200 rotate-180 left-1'>🠀</span>
+                    <span className='relative top-2 right-1 font-normal'>
+                      Planning<span className='relative right-[2.6rem] bottom-[1.1rem] text-pink-400 text-[0.5rem]'>❤︎</span>
+                    </span>
+                  </h1>
               </div>
             </div>
             

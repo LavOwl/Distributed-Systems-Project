@@ -6,12 +6,12 @@ export function Footer(){
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <h1 className="relative text-2xl font-light italic">
-                  Proj<span className="absolute top-3 transform scale-x-200 rotate-180 left-1">🠀</span>
-                  <span className="relative top-1 right-1 font-normal">
-                    Planning<span className="relative right-[1.8rem] bottom-[0.8rem] text-pink-400 text-[0.4rem]">❤︎</span>
-                  </span>
-                </h1>
+                <h1 className='relative text-3xl scale-80 font-light mb-2 italic'>
+                    Proj<span className='absolute top-4 transform scale-x-200 rotate-180 left-1'>🠀</span>
+                    <span className='relative top-2 right-1 font-normal'>
+                      Planning<span className='relative right-[2.6rem] bottom-[1.1rem] text-pink-400 text-[0.5rem]'>❤︎</span>
+                    </span>
+                  </h1>
               </div>
               <p className="text-gray-400 text-sm">
                 Conectando ONGs para un mundo mejor.
