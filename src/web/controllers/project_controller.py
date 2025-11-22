@@ -45,11 +45,10 @@ def create_project():
         # Inicio del proceso en Bonita.
         stages_required_contribution = project_service.stages_require_contribution(data)
         
-        # Agregación del atributo id_project a cada stage.
+        # Agregación de atributos id_project y user_id a cada stage.
         for stage in stages_required_contribution:
             stage["id_project"] = project.id
-
-       
+            
         
         # Conversión de las stages a JSON.
         stages_json = json.dumps(stages_required_contribution, separators=(',', ':'))
@@ -64,7 +63,10 @@ def create_project():
         project_service.link_to_bonita_case(project, case_id)
 
         # Completitud de tarea en Bonita.
+        
+        print("VOY A COMPLETAR LA TAREA")
         bonita.completar_tarea(case_id)
+        print("COMPLETE LA TAREA")
         return jsonify({"message": "Proyecto creado correctamente"}), 201
     except ValidationError as e:
         return jsonify({"errors": e.errors()}), 400
