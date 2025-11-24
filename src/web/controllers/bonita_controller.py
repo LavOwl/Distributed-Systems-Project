@@ -5,28 +5,21 @@ import os
 bonita_bp = Blueprint("bonita", __name__)
 BONITA_BASE_URL = os.environ.get("BONITA_BASE_URL")
 
-
 @bonita_bp.get("/v1/permissions")
 def access_permissions():
     bonita = BonitaService()
     jsessionid = request.cookies.get("JSESSIONID")
     token = request.cookies.get("X-Bonita-API-Token")
-
     if not jsessionid or not token:
         return jsonify({"no_permissions": "Sesión no encontrada. Inicie sesión nuevamente."}), 200
-
     bonita.session.cookies.set("JSESSIONID", jsessionid)
     bonita.session.cookies.set("X-Bonita-API-Token", token)
     bonita.csrf_token = token
-
     try:
-        
         info = bonita.obtener_info_usuario()
         g.bonita_user = info
-
         grupos = bonita.obtener_grupos_usuario(info["user_id"])
         return jsonify({"permissions": grupos}), 200
-
     except Exception:
         return jsonify({"no_permissions": "Sesión no encontrada. Inicie sesión nuevamente."}), 200
 

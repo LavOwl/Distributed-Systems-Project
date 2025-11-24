@@ -61,6 +61,7 @@ def get_projects_with_stages():
     projects = Project.query.options(joinedload(Project.stages)).all()
     return projects
 
+
 def get_project_by_case_id(case_id: int):
     """
     Obtiene un proyecto a partir de su case_id de Bonita.

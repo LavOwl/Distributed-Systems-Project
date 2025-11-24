@@ -95,8 +95,8 @@ def casos_fuera_de_plazo():
             # Obtiene la etapa del proyecto que finaliza última de todas.
             end_date_project = get_latest_stage_end_date(project)
 
-            # Incrementa 1 si la fecha de fin del proceso es mayor o igual a la de la etapa que finaliza última de todas.
-            if end_date_project and end_date >= end_date_project:
+            # Incrementa 1 si la fecha de fin del proceso es mayor a la de la etapa que finaliza última de todas.
+            if end_date_project and end_date > end_date_project:
                 cases_out_time += 1
         except Exception as e:
             continue

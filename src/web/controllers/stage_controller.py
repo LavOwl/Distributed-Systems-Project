@@ -36,9 +36,7 @@ def get_all_stages():
         3. 403 - error: el usuario no tiene permisos para acceder.
         4. 404 - message: no hay etapas disponibles.
     """
-    #response = stage_service.get_all_stages_by_project()
-    response = stage_service.get_all_stages_cloud()
-    
+    response = stage_service.get_all_stages_by_project() 
     if not response:
         return jsonify({"message": "No hay etapas disponibles."}), 404
     return jsonify(response), 200
@@ -60,12 +58,13 @@ def cover_stage_by_id(stage_id: int):
     # Obtención del user_id de la sesión actual.
     user_id = g.bonita_user["user_id"]
     
-    # Cubrir la etapa en la base de datos local
+    # Cubrir la etapa en la base de datos local.
     stage = stage_service.cover_stage(user_id, stage_id)
     
-    # Cubrir la etapa en la nube
+    # Cubrir la etapa en la nube.
     response = stage_service.cover_stage_cloud(user_id, stage_id)
-    
+
+    # Obtener el case_id.
     case_id = stage_service.get_case_id_by_stage(stage)
 
     # Obtención de las cookies de la sesión actual.
@@ -73,7 +72,6 @@ def cover_stage_by_id(stage_id: int):
 
     # Completar la tarea en Bonita.
     bonita.completar_tarea(case_id)
-    
     if response :
         return jsonify({"message": f"La etapa ha pasado de pendiente a en ejecución exitosamente."}), 200
     return jsonify({"error": f"No se pudo cubrir la etapa. Es posible que ya este en progreso o haya sido cubierta."}), 400
@@ -93,8 +91,7 @@ def get_in_progress_stages():
     """
     try:
         user_id = g.bonita_user["user_id"]
-        print("USER ID EN CONTROLLER:", user_id)
-        stages = stage_service.get_in_progress_stages_for_user_cloud(user_id)
+        stages = stage_service.get_in_progress_stages_for_user(user_id)
         return jsonify(stages), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -116,19 +113,21 @@ def finish_stage_by_id(stage_id: int):
         5. 409 - error: el proyecto aún no ha comenzado.
     """
     if(stage_service.project_has_started(stage_id)):
+        # Finalizar la etapa en la base de datos local.
         stage = stage_service.finish_stage(stage_id)
-        
-        response = stage_service.finish_stage_cloud(stage_id)
-        
-        if not response:
+
+        # Verificar que exista la etapa.
+        if not stage:
             return jsonify({"error": "No se pudo finalizar la etapa. Verifique su estado actual."}), 400
 
-        # Obtención de la sesión Bonita autenticada
+        # Finalizar la etapa en la nube.
+        response = stage_service.finish_stage_cloud(stage_id)
+
+        # Obtención de la sesión Bonita autenticada.
         bonita = get_authenticated_bonita_service()
         case_id = stage_service.get_case_id_by_stage(stage)
 
-        # Completa la tarea en Bonita
+        # Completa la tarea en Bonita.
         bonita.completar_tarea(case_id)
-
         return jsonify({"message": "La etapa ha pasado a finalizada exitosamente."}), 200
     return jsonify({"error": "El proyecto aún no ha comenzado."}), 409
