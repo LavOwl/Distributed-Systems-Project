@@ -12,6 +12,7 @@ def create_project_from_payload(payload, user_id):
     name = project_in.name
     description = project_in.description or ""
     stages = [stage.model_dump() for stage in project_in.stages]
+    print(stages)
     return core_project_services.create_project(user_id, name, description, stages)
 
 

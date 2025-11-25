@@ -130,7 +130,6 @@ def casos_sin_colaboracion():
     
     for caso in cases:
         case_id = caso['sourceObjectId'] # ID del proceso original, el que nosotros seteamos en la BD.
-        
         # Obtener variable numero_etapas del caso, para saber cuántas requieren colaboración.
         numero_etapas = bonita.get_archive_case_variable(case_id, 'numero_etapas')
         if int(numero_etapas) == 0:  # Si es 0, no requirió colaboración.

@@ -374,9 +374,9 @@ class BonitaService:
         # c indica la cantidad de resultados por página.
         # f indica los filtros.
         params = {
-            'p': 0, 
+            'p': 0,
             'c': 100,
-            'f': '&'.join(filters)  # Une filtros con &.
+            'f': filters
         }
 
         # Se realiza la petición.

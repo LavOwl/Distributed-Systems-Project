@@ -60,9 +60,6 @@ def cover_stage_by_id(stage_id: int):
     
     # Cubrir la etapa en la base de datos local.
     stage = stage_service.cover_stage(user_id, stage_id)
-    
-    # Cubrir la etapa en la nube.
-    response = stage_service.cover_stage_cloud(user_id, stage_id)
 
     # Obtener el case_id.
     case_id = stage_service.get_case_id_by_stage(stage)
@@ -72,7 +69,7 @@ def cover_stage_by_id(stage_id: int):
 
     # Completar la tarea en Bonita.
     bonita.completar_tarea(case_id)
-    if response :
+    if stage:
         return jsonify({"message": f"La etapa ha pasado de pendiente a en ejecución exitosamente."}), 200
     return jsonify({"error": f"No se pudo cubrir la etapa. Es posible que ya este en progreso o haya sido cubierta."}), 400
 
@@ -119,9 +116,6 @@ def finish_stage_by_id(stage_id: int):
         # Verificar que exista la etapa.
         if not stage:
             return jsonify({"error": "No se pudo finalizar la etapa. Verifique su estado actual."}), 400
-
-        # Finalizar la etapa en la nube.
-        response = stage_service.finish_stage_cloud(stage_id)
 
         # Obtención de la sesión Bonita autenticada.
         bonita = get_authenticated_bonita_service()
