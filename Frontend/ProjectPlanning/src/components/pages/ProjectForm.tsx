@@ -11,7 +11,7 @@ type ApiResponse = {
 
 export function ProjectForm(){
     const [tasks, setTasks] = useState<{ id: number }[]>([]);
-    const [result, setResult] = useState<ApiResponse | null>(null);
+    const [warning, setWarning] = useState<{type:'SUCCESS' | 'FAILURE', message:string} | null>(null);
 
     const handleAppend = () => {
         setTasks([...tasks, { id: Date.now() }]);
@@ -24,7 +24,6 @@ export function ProjectForm(){
     const formatDateForValidator = (dateString: string): string => {
     if (!dateString) return new Date().toISOString();
     
-    // Add time component to make it a valid datetime
     const dateWithTime = new Date(dateString + 'T00:00:00');
     return dateWithTime.toISOString();
   };
@@ -60,7 +59,6 @@ export function ProjectForm(){
         description: desc,
         stages: projectTasks,
         };
-        console.log(payload)
         try {
         const response = await fetch(
             `http://localhost:5000/project/v1/create_project`,
@@ -77,16 +75,62 @@ export function ProjectForm(){
         if (!response.ok) {
             throw new Error(data.error || "Error en la petición");
         }
-
-        setResult({ id: data.id });
+        setWarning({type:'SUCCESS', message:'Proyecto creado exitosamente con ID: ' + data.id});
         } catch (err: any) {
-        setResult({ error: err.message });
+        setWarning({type:'FAILURE', message: err.message || 'Ocurrió un error al crear el proyecto.'});
         }
     };
   
 
-  return (
-    
+  return (<>
+        {warning && <div>
+          <div className='fixed top-0 left-0 w-full h-full bg-black/20 z-10'></div>
+          <div className={`border fixed top-1/2 left-1/2 transform -translate-1/2 z-20 rounded-md p-4 mb-4 ${
+            warning.type === 'SUCCESS' 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex">
+              <div className="flex-shrink-0">
+                {warning.type === 'SUCCESS' ? (
+                  <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+              <div className="ml-3">
+                <h3 className={`text-sm font-medium ${
+                  warning.type === 'SUCCESS' ? 'text-green-800' : 'text-red-800'
+                }`}>
+                  {warning.type === 'SUCCESS' ? 'Operación exitosa.' : 'Ha ocurrido un error confirmando la contribución.'}
+                </h3>
+                <div className={`mt-2 text-sm ${
+                  warning.type === 'SUCCESS' ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  <p>{warning.message}</p>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setWarning(null)}
+                    className={`px-3 py-2 rounded text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      warning.type === 'SUCCESS' 
+                        ? 'bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500' 
+                        : 'bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500'
+                    }`}
+                  >
+                    Aceptar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        }
       
         <form onSubmit={initiateFlaskBonita} className="flex flex-col w-4/5 py-4 px-4 rounded-2xl gap-2 h-fit">
           <h1 className='text-3xl'>Presentar Proyecto</h1>
@@ -110,6 +154,6 @@ export function ProjectForm(){
             <button className='transition-all duration-500 cursor-pointer rounded-md w-fit px-6 py-2 border-2 border-black/10 text-black/50 hover:border-[#fb8500] hover:text-[#fb8500]'>Enviar</button>
           </div>
         </form>
-      
+      </>
   );
 }
