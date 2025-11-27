@@ -75,7 +75,7 @@ export function ProjectForm(){
         if (!response.ok) {
             throw new Error(data.error || "Error en la petición");
         }
-        setWarning({type:'SUCCESS', message:'Proyecto creado exitosamente con ID: ' + data.id});
+        setWarning({type:'SUCCESS', message:'Proyecto creado exitosamente!'});
         } catch (err: any) {
         setWarning({type:'FAILURE', message: err.message || 'Ocurrió un error al crear el proyecto.'});
         }
