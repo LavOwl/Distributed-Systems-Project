@@ -113,7 +113,7 @@ export function StatsPage() {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-6">Estadísticas del Proyecto</h2>
+      <h2 className="text-xl font-bold mb-6">Estadísticas de los proyecto</h2>
       
       {/* Cards Display */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
